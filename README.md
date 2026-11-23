@@ -25,3 +25,13 @@ Anahtar yalnızca girildiği cihazda saklanır. Bir yetkiliyi çıkarmak için o
 | `sw.js`, `manifest.webmanifest`, `icon*` | Ana ekrana ekleme ve çevrimdışı çalışma |
 
 Kıdem bilgileri Rize Barosu'nun 23.11.2026 tarihli kıdeme göre sicil listesinden alınmıştır.
+
+## Roller ve başvurular
+
+- **Komisyon üyeleri** (komisyon şifresi): görev verme, başvuruları inceleme, kabul / red / eksik evrak kararı, avukat ataması, karar tutanağı.
+- **Rize Adliyesi personeli** ve **Pazar Adliyesi personeli** (ayrı şifreler): yalnızca başvuru ve belge ekler. Başvuru, şifreye göre Merkez-Çayeli ya da Pazar listesine düşer.
+- Rol ayrımı uygulama arayüzünde yapılır; tüm şifreler aynı erişim anahtarını açar. Şifreleri yalnızca yetkili kişilerle paylaşın.
+
+## Kişisel veriler
+
+Başvuru bilgileri ve belgeler bu (herkese açık) depoda **tutulmaz**. Ayrı, gizli `rize-adli-yardim-dosyalar` deposunda, tarayıcıda AES-256 ile şifrelenmiş olarak saklanır. Bu depodaki `data.json` yalnızca avukat listesini ve görev kayıtlarını (başvuran adı olmadan) içerir.
