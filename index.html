@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0d7680">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Adli Yardım">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Adli Yardım Görev Çizelgesi</title>
+<style>
+/* VOICE work: the commission's working register
+   IDEA the bar's görevlendirme defteri: a queue to tick down and a ledger of every assignment
+   PICTURE the "sıradaki avukat" ticket, with the next names lined up behind it
+   COLOUR pale pink ground, ink, teal for action, claret for warnings
+   TYPE system sans, works offline on every phone
+   LAYOUT laptop: ticket + queue side by side, ledger below; phone: bottom tab bar, stacked */
+:root{color-scheme:light dark;--bg:#ffe3dc;--ink:#1a1817;--soft:#5b524e;--panel:#fff8f5;--line:#e9c9bf;--teal:#0d7680;--claret:#990f3d;--tealbg:#d4ecee;--clbg:#f6d3dc;--amber:#9a5b00}
+@media(prefers-color-scheme:dark){:root{--bg:#1c1512;--ink:#f3ebe7;--soft:#b9aca6;--panel:#2a201c;--line:#45362f;--teal:#3fb3bd;--claret:#ff6f97;--tealbg:#173a3d;--clbg:#4a1a29;--amber:#f0b050}}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.5 -apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;overflow-x:clip;padding-bottom:calc(72px + env(safe-area-inset-bottom))}
+.band{padding:clamp(14px,3vw,32px) max(4vw,14px,env(safe-area-inset-left))}
+.wrap{max-width:1240px;margin:0 auto}
+header.top{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:end;justify-content:space-between;margin-bottom:14px}
+h1{font-weight:800;font-size:clamp(26px,4vw,40px);line-height:1.05;letter-spacing:-.02em;margin:0}
+h2{font-weight:800;font-size:20px;margin:0 0 12px}
+.sub{color:var(--soft);margin:4px 0 0;font-size:15px;max-width:70ch}
+.status{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.chip{display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:2px 12px;border-radius:999px;background:var(--panel);border:1px solid var(--line);font-size:14px;white-space:nowrap}
+.chip.ok{border-color:var(--teal);color:var(--teal)}
+.chip.bad{border-color:var(--claret);color:var(--claret)}
+.chip.adm{background:var(--teal);color:#fff;border-color:var(--teal)}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:5;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));background:var(--panel);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+nav.tabs button{border:0;border-radius:0;background:transparent;min-height:60px;font-size:13px;padding:6px 2px;display:grid;justify-items:center;gap:2px;color:var(--soft)}
+nav.tabs button svg{width:22px;height:22px}
+nav.tabs button[aria-current=page]{color:var(--teal);box-shadow:inset 0 3px 0 var(--teal)}
+@media(min-width:900px){body{padding-bottom:0}nav.tabs{position:static;display:flex;gap:8px;background:transparent;border:0;padding:0;margin-bottom:18px}nav.tabs button{min-height:44px;display:inline-flex;gap:8px;align-items:center;padding:0 16px;border:1.5px solid var(--ink);border-radius:999px;color:var(--ink);font-size:15px}nav.tabs button[aria-current=page]{background:var(--ink);color:var(--bg);box-shadow:none}nav.tabs button svg{width:18px;height:18px}}
+.seg{display:inline-flex;border:1.5px solid var(--ink);border-radius:999px;overflow:hidden;margin-bottom:14px}
+.seg button{border:0;border-radius:0;min-height:40px;background:transparent}
+.seg button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+.grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:16px}
+.ticket{background:var(--teal);color:#fff;border-radius:18px;padding:clamp(18px,3vw,28px);display:flex;flex-direction:column;gap:12px}
+.ticket .lab{font-weight:600;opacity:.85}
+.ticket .nm{font-weight:800;font-size:clamp(28px,4.4vw,46px);line-height:1.05;letter-spacing:-.02em}
+.ticket .meta{display:flex;flex-wrap:wrap;gap:6px 16px}
+.ticket .meta b{white-space:nowrap}
+.ticket button{border-color:#fff}
+.ticket .go{background:#fff;color:#0d4f55}
+.ticket .ghost{background:transparent;color:#fff}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+input,select,button,textarea{font:inherit;font-size:16px}
+button{min-height:44px;padding:0 16px;border-radius:10px;border:1.5px solid var(--ink);background:var(--panel);color:var(--ink);font-weight:600;cursor:pointer}
+button:disabled{opacity:.5;cursor:default}
+button.pri{background:var(--teal);border-color:var(--teal);color:#fff}
+button.danger{border-color:var(--claret);color:var(--claret)}
+button.mini{min-height:36px;padding:0 10px;font-size:14px}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--claret);outline-offset:2px}
+.figs{display:grid;grid-template-columns:repeat(auto-fit,minmax(8.5em,1fr));gap:10px}
+.fig{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:10px 12px}
+.fig b{display:block;font-weight:800;font-size:clamp(22px,3vw,30px);line-height:1.1;font-variant-numeric:tabular-nums}
+.fig span{color:var(--soft);font-size:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.side{display:grid;gap:14px;align-content:start}
+.queue ol{margin:0;padding:0;list-style:none}
+.queue li{display:grid;grid-template-columns:26px minmax(0,1fr) auto;gap:10px;padding:7px 0;border-bottom:1px solid var(--line)}
+.queue li:last-child{border-bottom:0}
+.queue .i,.queue .k{color:var(--soft);font-size:14px;white-space:nowrap}
+.tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:16px 0 12px}
+.tools input,.tools select,.f input,.f select,.f textarea{min-height:44px;padding:0 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink);width:100%}
+.tools input{flex:1 1 200px;width:auto}
+.tools select{width:auto}
+.scroll{overflow-x:auto;background:var(--panel);border:1px solid var(--line);border-radius:14px}
+table{border-collapse:collapse;width:100%;font-size:15px}
+th,td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-weight:600;color:var(--soft);font-size:14px;white-space:nowrap}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+td.note{color:var(--soft);font-size:14px;max-width:30ch}
+tr.next td{background:var(--tealbg)}
+tr.off td{opacity:.55}
+tr.iade td{text-decoration:line-through;text-decoration-color:var(--claret)}
+tr.click{cursor:pointer}
+.pill{display:inline-block;padding:1px 8px;border-radius:999px;font-size:13px;background:var(--line);white-space:nowrap;text-decoration:none}
+.pill.c{background:var(--clbg);color:var(--claret)}
+.warn{color:var(--claret);font-weight:600}
+.hint{color:var(--soft);font-size:14px;margin:8px 0 0}
+.bars{display:grid;gap:4px}
+.bar{display:grid;grid-template-columns:minmax(0,12em) minmax(0,1fr) 2.5em;gap:8px;align-items:center;font-size:14px}
+.bar .t{height:14px;background:var(--line);border-radius:4px;overflow:hidden}
+.bar .t i{display:block;height:100%;background:var(--teal)}
+.bar .v{text-align:right;font-variant-numeric:tabular-nums}
+.bar .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.months{display:flex;align-items:end;gap:6px;height:140px;padding-top:10px}
+.months div{flex:1;display:grid;align-content:end;justify-items:center;gap:4px;font-size:12px;color:var(--soft);height:100%}
+.months i{display:block;width:100%;background:var(--teal);border-radius:4px 4px 0 0;min-height:2px}
+dialog{border:0;border-radius:16px;padding:0;width:min(600px,94vw);max-height:90vh;background:var(--panel);color:var(--ink)}
+dialog::backdrop{background:rgba(0,0,0,.45)}
+.dlg{padding:18px}
+.f{display:grid;gap:4px;margin-bottom:12px}
+.f label{font-size:14px;color:var(--soft)}
+.f textarea{min-height:76px;padding:10px 12px}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+.yrs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.yrs input{text-align:center;padding:0 4px}
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:20;max-width:92vw}
+.toast.on{opacity:1}
+.static h2{margin-top:18px}
+.static .note{font-size:14px;color:var(--soft)}
+[hidden]{display:none!important}
+.log li{margin:4px 0;font-size:14px}
+@media(prefers-reduced-motion:reduce){.toast{transition:none}}
+@media(max-width:860px){.grid{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:600px){table{font-size:13px}th,td{padding:6px 5px}.hide-s{display:none}.yrs{grid-template-columns:repeat(3,minmax(0,1fr))}.two{grid-template-columns:minmax(0,1fr)}.bar{grid-template-columns:minmax(0,9em) minmax(0,1fr) 2em}}
+@media print{nav.tabs,.ticket,.tools,.chip,button{display:none!important}body{background:#fff;color:#000;padding:0}.scroll,.card{border:0}}
+</style>
+</head>
+<body>
+<div class="band"><div class="wrap">
+<header class="top">
+<div><h1>Adli yardım görev çizelgesi</h1><p class="sub">Rize Barosu Adli Yardım Komisyonu · görev kıdemi en düşük aktif avukattan başlar</p></div>
+<div class="status"><span class="chip" id="cSync">Yükleniyor</span><span class="chip" id="cAdm" hidden></span></div>
+</header>
+
+<!-- Uygulama açılmadan da okunabilen liste (JavaScript çalışmayan önizlemeler için) -->
+<section class="static" id="static">
+<p class="note">Bu, 23.11.2026 tarihli listenin özetidir. Görev vermek ve güncel kayıtları görmek için bağlantıyı Safari veya Chrome'da açın.</p>
+<h2>Merkez-Çayeli</h2><div class='scroll'><table><thead><tr><th class='n'>Sıra</th><th>Ad soyad</th><th>Durum</th><th>Kıdem</th><th class='n'>2025</th><th class='n'>2026</th></tr></thead><tbody><tr><td class='n'>1</td><td>İbrahim Hakkı Büyük</td><td>Aktif</td><td>2 Ay</td><td class='n'>0</td><td class='n'>0</td></tr><tr><td class='n'>2</td><td>Rahmi Seymenoğlu</td><td>Aktif</td><td>7 Ay</td><td class='n'>0</td><td class='n'>1</td></tr><tr><td class='n'>3</td><td>Ceyda Narman</td><td>Aktif</td><td>9 Ay</td><td class='n'>0</td><td class='n'>1</td></tr><tr><td class='n'>4</td><td>Erdal Özdemir</td><td>Aktif</td><td>1 Yıl 3 Ay</td><td class='n'>0</td><td class='n'>1</td></tr><tr><td class='n'>5</td><td>Defne Karakuş</td><td>Aktif</td><td>1 Yıl 7 Ay</td><td class='n'>1</td><td class='n'>1</td></tr><tr><td class='n'>6</td><td>Oğuzhan İhtiyar</td><td>Aktif</td><td>1 Yıl 7 Ay</td><td class='n'>1</td><td class='n'>1</td></tr><tr><td class='n'>7</td><td>Emine Öztürk</td><td>Aktif</td><td>1 Yıl 10 Ay</td><td class='n'>1</td><td class='n'>1</td></tr><tr><td class='n'>8</td><td>İrem Aydın Soba</td><td>Aktif</td><td>1 Yıl 11 Ay</td><td class='n'>0</td><td class='n'>0</td></tr><tr><td class='n'>9</td><td>Fatma Gül Çelik</td><td>Aktif</td><td>2 Yıl</td><td class='n'>0</td><td class='n'>1</td></tr><tr><td class='n'>10</td><td>Mehtap Anlamış Ertem</td><td>Aktif</td><td>2 Yıl 1 Ay</td><td class='n'>0</td><td class='n'>1</td></tr><tr><td class='n'>11</td><td>Mecit Rıdvan Yavuz</td><td>Aktif</td><td>2 Yıl 1 Ay</td><td class='n'>1</td><td class='n'>0</td></tr><tr><td class='n'>12</td><td>Gurur Taha Şenkaya</td><td>Aktif</td><td>2 Yıl 2 Ay</td><td class='n'>1</td><td class='n'>1</td></tr><tr><td class='n'>13</td><td>Zehra Kazdal</td><td>Aktif</td><td>2 Yıl 2 Ay</td><td class='n'>1</td><td class='n'>1</td></tr><tr><td class='n'>14</td><td>Ertuğrul Suiçmez</td><td>Aktif</td><td>2 Yıl 2 Ay</td><td class='n'>2</td><td class='n'>1</td></tr><tr><td class='n'>15</td><td>Mehmet Fatih Çataklı</td><td>Aktif</td><td>2 Yıl 2 Ay</td><td class='n'>1</td><td class='n'>0</td></tr><tr><td class='n'>16</td><td>Batuhan Çelik</td><td>Aktif</td><td>2 Yıl 2 Ay</td><td class='n'>1</td><td class='n'>1</td></tr><tr><td class='n'>17</td><td>İsmail Karaca</td><td>Aktif</td><td>2 Yıl 3 Ay</td><td class='n'>1</td><td class='n'>1</td></tr><tr><td class='n'>18</td><td>Rukiyye Kumbasar</td><td>Aktif</td><td>2 Yıl 6 Ay</td><td class='n'>1</td><td class='n'>0</td></tr><tr><td class='n'>19</td><td>Nurullah Soba</td><td>Aktif</td><td>2 Yıl 6 Ay</td><td class='n'>1</td><td class='n'>1</td></tr><tr><td class='n'>20</td><td>İlker Güzel</td><td>Aktif</td><td>2 Yıl 7 Ay</td><td class='n'>0</td><td class='n'>1</td></tr><tr><td class='n'>21</td><td>Hümeyra Büyük</td><td>Aktif</td><td>2 Yıl 7 Ay</td><td class='n'>1</td><td class='n'>1</td></tr><tr><td class='n'>22</td><td>Nermin Güner</td><td>Aktif</td><td>2 Yıl 8 Ay</td><td class='n'>1</td><td class='n'>1</td></tr><tr><td class='n'>23</td><td>Havva Havuz</td><td>Aktif</td><td>2 Yıl 9 Ay</td><td class='n'>1</td><td class='n'>1</td></tr><tr><td class='n'>24</td><td>Büşra Uzun</td><td>Aktif</td><td>2 Yıl 11 Ay</td><td class='n'>1</td><td class='n'>0</td></tr><tr><td class='n'>25</td><td>Nesibe Kaya Uç</td><td>Aktif</td><td>3 Yıl</td><td class='n'>–</td><td class='n'>–</td></tr><tr><td class='n'>26</td><td>Yunus Emre Delibalta</td><td>Aktif</td><td>3 Yıl 1 Ay</td><td class='n'>1</td><td class='n'>0</td></tr><tr><td class='n'>27</td><td>Rümeysa Gümüş</td><td>Aktif</td><td>3 Yıl 1 Ay</td><td class='n'>1</td><td class='n'>1</td></tr><tr><td class='n'>28</td><td>Merve Suman</td><td>Aktif</td><td>3 Yıl 1 Ay</td><td class='n'>1</td><td class='n'>0</td></tr><tr><td class='n'>29</td><td>Ayşegül Gülsün Uçak</td><td>Aktif</td><td>3 Yıl 4 Ay</td><td class='n'>1</td><td class='n'>1</td></tr><tr><td class='n'>30</td><td>Abdülmecid Karadaş</td><td>Aktif</td><td>3 Yıl 10 Ay</td><td class='n'>–</td><td class='n'>0</td></tr><tr><td class='n'>31</td><td>Sena Tabak</td><td>Aktif</td><td>3 Yıl 10 Ay</td><td class='n'>1</td><td class='n'>0</td></tr><tr><td class='n'>32</td><td>Elif Aksu</td><td>Aktif</td><td>3 Yıl 10 Ay</td><td class='n'>1</td><td class='n'>1</td></tr><tr><td class='n'>33</td><td>İmran Nalkıran</td><td>Aktif</td><td>4 Yıl</td><td class='n'>2</td><td class='n'>1</td></tr><tr><td class='n'>34</td><td>Elifnur Köse</td><td>Aktif</td><td>4 Yıl</td><td class='n'>1</td><td class='n'>1</td></tr><tr><td class='n'>35</td><td>Nurgül Kopuz</td><td>Aktif</td><td>4 Yıl</td><td class='n'>0</td><td class='n'>2</td></tr><tr><td class='n'>36</td><td>Hatice Çil</td><td>Aktif</td><td>4 Yıl 1 Ay</td><td class='n'>1</td><td class='n'>1</td></tr><tr><td class='n'>37</td><td>Esma Alkan Levent</td><td>Aktif</td><td>4 Yıl 1 Ay</td><td class='n'>0</td><td class='n'>1</td></tr><tr><td class='n'>38</td><td>Kerem Sarıhan</td><td>Aktif</td><td>4 Yıl 3 Ay</td><td class='n'>1</td><td class='n'>1</td></tr><tr><td class='n'>39</td><td>Büşra Sena Dervişoğlu</td><td>Aktif</td><td>4 Yıl 6 Ay</td><td class='n'>0</td><td class='n'>1</td></tr><tr><td class='n'>40</td><td>Pınar Kasparoğlu</td><td>Aktif</td><td>4 Yıl 9 Ay</td><td class='n'>1</td><td class='n'>2</td></tr><tr><td class='n'>41</td><td>Ayşe Yormaz</td><td>Aktif</td><td>4 Yıl 10 Ay</td><td class='n'>1</td><td class='n'>1</td></tr><tr><td class='n'>42</td><td>Sezen Sivri</td><td>Aktif</td><td>4 Yıl 10 Ay</td><td class='n'>1</td><td class='n'>0</td></tr><tr><td class='n'>43</td><td>Sümeyye Yağcı</td><td>Aktif</td><td>5 Yıl</td><td class='n'>0</td><td class='n'>0</td></tr><tr><td class='n'></td><td>Dilara Okumuş</td><td>Listeden Çıktı</td><td>5 Yıl 1 Ay</td><td class='n'>1</td><td class='n'>1</td></tr><tr><td class='n'>44</td><td>Hüsna Pursa</td><td>Aktif</td><td>5 Yıl 2 Ay</td><td class='n'>1</td><td class='n'>1</td></tr><tr><td class='n'>45</td><td>Erdem Karaosman</td><td>Aktif</td><td>5 Yıl 5 Ay</td><td class='n'>0</td><td class='n'>0</td></tr><tr><td class='n'>46</td><td>Saadet Sevimli</td><td>Aktif</td><td>5 Yıl 7 Ay</td><td class='n'>1</td><td class='n'>1</td></tr><tr><td class='n'>47</td><td>Merve Nalkıran</td><td>Aktif</td><td>5 Yıl 10 Ay</td><td class='n'>0</td><td class='n'>1</td></tr><tr><td class='n'>48</td><td>Büşra Nur Yediyıldız</td><td>Aktif</td><td>5 Yıl 10 Ay</td><td class='n'>1</td><td class='n'>1</td></tr><tr><td class='n'>49</td><td>Miraç Yılmaz</td><td>Aktif</td><td>5 Yıl 10 Ay</td><td class='n'>1</td><td class='n'>1</td></tr><tr><td class='n'>50</td><td>İnci Karslı</td><td>Aktif</td><td>6 Yıl</td><td class='n'>1</td><td class='n'>1</td></tr><tr><td class='n'>51</td><td>Sena Avcılar</td><td>Aktif</td><td>6 Yıl 2 Ay</td><td class='n'>1</td><td class='n'>0</td></tr><tr><td class='n'>52</td><td>Çağlar Yazıcı</td><td>Aktif</td><td>6 Yıl 2 Ay</td><td class='n'>1</td><td class='n'>1</td></tr><tr><td class='n'>53</td><td>Ramazan Sarı</td><td>Aktif</td><td>6 Yıl 10 Ay</td><td class='n'>1</td><td class='n'>1</td></tr><tr><td class='n'>54</td><td>Alihan Yetimoğlu</td><td>Aktif</td><td>6 Yıl 10 Ay</td><td class='n'>1</td><td class='n'>1</td></tr><tr><td class='n'>55</td><td>Osman Diren</td><td>Aktif</td><td>7 Yıl 1 Ay</td><td class='n'>1</td><td class='n'>2</td></tr><tr><td class='n'>56</td><td>Selem Artan Kazdal</td><td>Aktif</td><td>7 Yıl 1 Ay</td><td class='n'>0</td><td class='n'>1</td></tr><tr><td class='n'>57</td><td>Hiclal Devran</td><td>Aktif</td><td>7 Yıl 1 Ay</td><td class='n'>1</td><td class='n'>0</td></tr><tr><td class='n'>58</td><td>Muhammet Üzeyir Kaya</td><td>Aktif</td><td>7 Yıl 1 Ay</td><td class='n'>1</td><td class='n'>1</td></tr><tr><td class='n'>59</td><td>Enes Faruk Kasap</td><td>Aktif</td><td>7 Yıl 2 Ay</td><td class='n'>1</td><td class='n'>1</td></tr><tr><td class='n'>60</td><td>Yağmur Zaman</td><td>Aktif</td><td>7 Yıl 7 Ay</td><td class='n'>0</td><td class='n'>1</td></tr><tr><td class='n'>61</td><td>Ensar Pursa</td><td>Aktif</td><td>7 Yıl 7 Ay</td><td class='n'>1</td><td class='n'>1</td></tr><tr><td class='n'>62</td><td>Zeynep Öztürk Yılmaz</td><td>Aktif</td><td>7 Yıl 11 Ay</td><td class='n'>1</td><td class='n'>1</td></tr><tr><td class='n'></td><td>Ekin Çalışkan</td><td>Geçici Pasif</td><td>8 Yıl</td><td class='n'>–</td><td class='n'>–</td></tr><tr><td class='n'>63</td><td>Emel Çelik Yetimoğlu</td><td>Aktif</td><td>8 Yıl 1 Ay</td><td class='n'>1</td><td class='n'>1</td></tr><tr><td class='n'>64</td><td>Derya Uzun</td><td>Aktif</td><td>8 Yıl 1 Ay</td><td class='n'>1</td><td class='n'>1</td></tr><tr><td class='n'>65</td><td>Batıkan Naci Güzel</td><td>Aktif</td><td>8 Yıl 2 Ay</td><td class='n'>1</td><td class='n'>0</td></tr><tr><td class='n'></td><td>Cengiz Ayhan</td><td>Listeden Çıktı</td><td>8 Yıl 11 Ay</td><td class='n'>–</td><td class='n'>–</td></tr><tr><td class='n'>66</td><td>Seda Dönmez Doğan</td><td>Aktif</td><td>9 Yıl 2 Ay</td><td class='n'>1</td><td class='n'>1</td></tr><tr><td class='n'>67</td><td>Sendenur Kazdal Şanal</td><td>Aktif</td><td>9 Yıl 2 Ay</td><td class='n'>0</td><td class='n'>0</td></tr><tr><td class='n'>68</td><td>Elanur Kartal Onay</td><td>Aktif</td><td>9 Yıl 8 Ay</td><td class='n'>0</td><td class='n'>0</td></tr><tr><td class='n'>69</td><td>Mehmet Ertem</td><td>Aktif</td><td>9 Yıl 9 Ay</td><td class='n'>0</td><td class='n'>1</td></tr><tr><td class='n'>70</td><td>Semra Aksu Durmuş</td><td>Aktif</td><td>10 Yıl</td><td class='n'>1</td><td class='n'>1</td></tr><tr><td class='n'>71</td><td>Tuğçe Hacıömeroğlu</td><td>Aktif</td><td>10 Yıl</td><td class='n'>1</td><td class='n'>1</td></tr><tr><td class='n'>72</td><td>Seçil Akbaba</td><td>Aktif</td><td>11 Yıl</td><td class='n'>1</td><td class='n'>1</td></tr><tr><td class='n'>73</td><td>Merve Karahan Temizel</td><td>Aktif</td><td>11 Yıl 2 Ay</td><td class='n'>1</td><td class='n'>0</td></tr><tr><td class='n'>74</td><td>Hamdiye Güngör Somay</td><td>Aktif</td><td>14 Yıl 7 Ay</td><td class='n'>1</td><td class='n'>1</td></tr><tr><td class='n'>75</td><td>Gülsüm Yıldırım</td><td>Aktif</td><td>15 Yıl 7 Ay</td><td class='n'>1</td><td class='n'>1</td></tr><tr><td class='n'>76</td><td>Özlem Mutlu Türemen</td><td>Aktif</td><td>16 Yıl 6 Ay</td><td class='n'>0</td><td class='n'>0</td></tr><tr><td class='n'>77</td><td>Elif Kopuz Kayabaşı</td><td>Aktif</td><td>17 Yıl 10 Ay</td><td class='n'>1</td><td class='n'>0</td></tr><tr><td class='n'>78</td><td>Mehmet Kayabaşı</td><td>Aktif</td><td>18 Yıl 10 Ay</td><td class='n'>1</td><td class='n'>0</td></tr><tr><td class='n'>79</td><td>Filiz Gül Kaya</td><td>Aktif</td><td>19 Yıl 11 Ay</td><td class='n'>1</td><td class='n'>1</td></tr><tr><td class='n'>80</td><td>Ömer Somay</td><td>Aktif</td><td>23 Yıl 9 Ay</td><td class='n'>1</td><td class='n'>1</td></tr><tr><td class='n'></td><td>Asiye Tatlı</td><td>Şehir Dışında</td><td></td><td class='n'>–</td><td class='n'>–</td></tr></tbody></table></div><h2>Pazar</h2><div class='scroll'><table><thead><tr><th class='n'>Sıra</th><th>Ad soyad</th><th>Durum</th><th>Kıdem</th><th class='n'>2025</th><th class='n'>2026</th></tr></thead><tbody><tr><td class='n'>1</td><td>Merve Tuana Bozkan</td><td>Aktif</td><td>10 Ay</td><td class='n'>0</td><td class='n'>1</td></tr><tr><td class='n'>2</td><td>Ömürcan Yaylacı</td><td>Aktif</td><td>1 Yıl 3 Ay</td><td class='n'>0</td><td class='n'>1</td></tr><tr><td class='n'>3</td><td>Meryem Zengin</td><td>Aktif</td><td>1 Yıl 9 Ay</td><td class='n'>0</td><td class='n'>1</td></tr><tr><td class='n'>4</td><td>Ceren Karaoğlu</td><td>Aktif</td><td>1 Yıl 10 Ay</td><td class='n'>1</td><td class='n'>1</td></tr><tr><td class='n'>5</td><td>Çağlanur Mert</td><td>Aktif</td><td>2 Yıl</td><td class='n'>1</td><td class='n'>1</td></tr><tr><td class='n'>6</td><td>Seda Aslışen</td><td>Aktif</td><td>2 Yıl 1 Ay</td><td class='n'>1</td><td class='n'>0</td></tr><tr><td class='n'>7</td><td>Begüm Yıldırım</td><td>Aktif</td><td>2 Yıl 4 Ay</td><td class='n'>0</td><td class='n'>1</td></tr><tr><td class='n'>8</td><td>Çağtay İbrahim Şentürk</td><td>Aktif</td><td>3 Yıl 1 Ay</td><td class='n'>0</td><td class='n'>2</td></tr><tr><td class='n'>9</td><td>Simge Etik</td><td>Aktif</td><td>4 Yıl 2 Ay</td><td class='n'>1</td><td class='n'>0</td></tr><tr><td class='n'>10</td><td>Melike Yenilmez</td><td>Aktif</td><td>4 Yıl 7 Ay</td><td class='n'>1</td><td class='n'>0</td></tr><tr><td class='n'>11</td><td>Gamze Nur Civaoğlu</td><td>Aktif</td><td>5 Yıl</td><td class='n'>1</td><td class='n'>1</td></tr><tr><td class='n'>12</td><td>Muhammet Ensar Okutan</td><td>Aktif</td><td>7 Yıl 1 Ay</td><td class='n'>1</td><td class='n'>0</td></tr><tr><td class='n'>13</td><td>Emine Buçan</td><td>Aktif</td><td>7 Yıl 8 Ay</td><td class='n'>1</td><td class='n'>0</td></tr><tr><td class='n'>14</td><td>Özgenur Baş</td><td>Aktif</td><td>8 Yıl 3 Ay</td><td class='n'>0</td><td class='n'>0</td></tr><tr><td class='n'>15</td><td>Şeyma Nur Akarsu</td><td>Aktif</td><td>8 Yıl 3 Ay</td><td class='n'>1</td><td class='n'>1</td></tr><tr><td class='n'>16</td><td>Rıdvan Okutan</td><td>Aktif</td><td>8 Yıl 8 Ay</td><td class='n'>1</td><td class='n'>0</td></tr><tr><td class='n'>17</td><td>Mustafa Buçan</td><td>Aktif</td><td>9 Yıl 10 Ay</td><td class='n'>0</td><td class='n'>1</td></tr><tr><td class='n'>18</td><td>Hasan Topaloğlu</td><td>Aktif</td><td>13 Yıl 7 Ay</td><td class='n'>1</td><td class='n'>1</td></tr></tbody></table></div>
+</section>
+
+<div id="app" hidden>
+<nav class="tabs" id="tabs">
+<button data-v="sira"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h10M4 18h7"/></svg>Sıra</button>
+<button data-v="liste"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5M16 4.5a3.5 3.5 0 010 7M18.5 14.8c1.7.8 2.7 2.5 3 5.2"/></svg>Avukatlar</button>
+<button data-v="kayit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>Kayıtlar</button>
+<button data-v="ist"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>İstatistik</button>
+<button data-v="ayar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg>Yönetim</button>
+</nav>
+
+<div class="seg" id="seg" role="group" aria-label="Liste"><button data-g="mc">Merkez-Çayeli</button><button data-g="pz">Pazar</button></div>
+
+<section id="vSira">
+<div class="grid">
+<div class="ticket">
+<div class="lab" id="tLab">Sıradaki avukat</div>
+<div class="nm" id="tName">—</div>
+<div class="meta" id="tMeta"></div>
+<div class="row" id="tAct">
+<button class="go" id="bGive">Görev ver</button>
+<button class="ghost" id="bSkip">Atla</button>
+</div>
+<p id="tRO" class="hint" style="color:#fff;opacity:.85;margin:0" hidden>Görev vermek için Yönetim sekmesinden giriş yapın.</p>
+</div>
+<div class="side">
+<div class="figs" id="figs"></div>
+<div class="card queue"><h2>Arkadan gelenler</h2><ol id="queue"></ol></div>
+</div>
+</div>
+<div class="card" style="margin-top:16px"><h2>Son görevler</h2><ul class="log" id="recent" style="margin:0;padding-left:18px"></ul></div>
+</section>
+
+<section id="vListe" hidden>
+<div class="tools">
+<input id="q" type="search" placeholder="İsim ara" aria-label="İsim ara">
+<select id="fD" aria-label="Durum"></select>
+<button id="bPrint" class="mini">Yazdır</button>
+</div>
+<div class="scroll"><table>
+<thead><tr><th class="n">Sıra</th><th>Ad soyad</th><th>Durum</th><th class="n hide-s">Sicil</th><th>Kıdem</th><th class="n hide-s">2025</th><th class="n hide-s">2026</th><th class="n" id="thDon">2027</th><th class="n">5 yıl</th><th class="hide-s">Not</th></tr></thead>
+<tbody id="tb"></tbody>
+</table></div>
+<p class="hint">Bir avukata dokunarak görev geçmişini görebilirsiniz. "Sıra" kıdem sırasıdır; "5 yıl" son beş dönemin toplamıdır.</p>
+</section>
+
+<section id="vKayit" hidden>
+<div class="tools">
+<input id="qa" type="search" placeholder="Avukat, dosya no, birim ara" aria-label="Kayıtlarda ara">
+<select id="fT" aria-label="Görev türü"></select>
+<select id="fS" aria-label="Kayıt durumu"><option value="">Tüm kayıtlar</option><option>Verildi</option><option>İade edildi</option></select>
+<button id="bNew" class="mini">Elle kayıt ekle</button>
+</div>
+<div class="scroll"><table>
+<thead><tr><th>Tarih</th><th>Avukat</th><th>Dosya no</th><th class="hide-s">Tür</th><th class="hide-s">Birim</th><th class="hide-s">Not</th><th></th></tr></thead>
+<tbody id="tbAll"></tbody>
+</table></div>
+<p class="hint" id="allSum"></p>
+</section>
+
+<section id="vIst" hidden>
+<div class="figs" id="sFigs"></div>
+<div class="grid" style="margin-top:16px">
+<div class="card"><h2 id="sBarT">Dönem görev dağılımı</h2><div class="bars" id="sBars"></div></div>
+<div class="side">
+<div class="card"><h2>Aylara göre görev</h2><div class="months" id="sMonths"></div></div>
+<div class="card"><h2>Görev türleri</h2><div class="bars" id="sTypes"></div></div>
+</div>
+</div>
+</section>
+
+<section id="vAyar" hidden>
+<div class="grid">
+<div class="card">
+<h2>Yönetici girişi</h2>
+<div id="admOut">
+<p class="hint" style="margin:0 0 12px">Görev verme ve düzenleme yalnızca yetkili kişilerce yapılır. Herkes listeyi ve kayıtları görebilir.</p>
+<div class="f"><label for="aName">Adınız (kayıtlarda görünür)</label><input id="aName" autocomplete="name"></div>
+<div class="f"><label for="aTok">Erişim anahtarı</label><input id="aTok" type="password" autocomplete="off" placeholder="github_pat_…"></div>
+<div class="row"><button class="pri" id="bLogin">Giriş yap</button></div>
+<p class="hint">Anahtar yalnızca bu cihazda saklanır. Nasıl alınacağı README dosyasında anlatılır.</p>
+</div>
+<div id="admIn" hidden>
+<p id="admWho" style="margin:0 0 12px"></p>
+<div class="row"><button id="bLogout" class="danger">Çıkış yap</button></div>
+</div>
+</div>
+<div class="card">
+<h2>Dönem ve veri</h2>
+<div class="f"><label for="sDon">Geçerli dönem</label><select id="sDon"></select></div>
+<div class="row"><button id="bCsv">Excel için indir (.csv)</button><button id="bJson">Yedeği indir (.json)</button><button id="bRefresh">Yenile</button></div>
+<div class="row" style="margin-top:10px"><label><input type="file" id="fRestore" accept=".json,application/json" hidden><span class="chip" style="cursor:pointer;min-height:44px;padding:0 16px;font-weight:600">Yedekten geri yükle</span></label></div>
+<p class="hint" id="restoreMsg"></p>
+</div>
+</div>
+<div class="grid" style="margin-top:16px">
+<div class="card"><h2>Kontrol edilecekler</h2><ul id="checks" style="margin:0;padding-left:18px"></ul></div>
+<div class="card"><h2>Değişiklik geçmişi</h2><ul class="log" id="hist" style="margin:0;padding-left:18px"></ul></div>
+</div>
+</section>
+</div>
+</div></div>
+
+<dialog id="dGive"><form class="dlg" id="fGive" method="dialog">
+<h2 id="gT">Görev ver</h2>
+<div class="f"><label for="gP">Avukat</label><select id="gP"></select></div>
+<div class="two"><div class="f"><label for="gD">Tarih</label><input type="date" id="gD" required></div><div class="f"><label for="gY">Dönem</label><select id="gY"></select></div></div>
+<div class="two"><div class="f"><label for="gF">Dosya / soruşturma no</label><input id="gF" placeholder="2026/1234"></div><div class="f"><label for="gTur">Görev türü</label><select id="gTur"></select></div></div>
+<div class="f"><label for="gB">Birim (mahkeme, büro)</label><input id="gB" list="birimler" placeholder="Rize 1. Asliye Hukuk"><datalist id="birimler"></datalist></div>
+<div class="f"><label for="gS">Kayıt durumu</label><select id="gS"><option>Verildi</option><option>İade edildi</option></select></div>
+<div class="f"><label for="gN">Not</label><textarea id="gN"></textarea></div>
+<p class="hint" id="gMeta"></p>
+<div class="row"><button type="submit" class="pri">Kaydet</button><button type="button" id="gCancel">Vazgeç</button><button type="button" class="danger" id="gDel" hidden>Kaydı sil</button></div>
+</form></dialog>
+
+<dialog id="dPer"><form class="dlg" id="fPer" method="dialog">
+<h2 id="pT"></h2>
+<p class="hint" id="pInfo" style="margin:-6px 0 12px"></p>
+<fieldset id="pEdit" style="border:0;padding:0;margin:0">
+<div class="f"><label for="pD">Durum</label><select id="pD"></select></div>
+<div class="f"><label>Eski görev sayıları (bu uygulama öncesi)</label><div class="yrs" id="pY"></div></div>
+<div class="f"><label for="pO">Not</label><textarea id="pO"></textarea></div>
+</fieldset>
+<div class="f"><label>Uygulamada kayıtlı görevleri</label><ul class="log" id="pLog" style="margin:0;padding-left:18px"></ul></div>
+<div class="row"><button type="submit" class="pri" id="pSave">Kaydet</button><button type="button" id="pCancel">Kapat</button></div>
+</form></dialog>
+
+<dialog id="dSkip"><form class="dlg" id="fSkip" method="dialog">
+<h2>Bu turda atla</h2>
+<p id="kWho" style="margin:0 0 10px"></p>
+<div class="f"><label for="kR">Neden</label><select id="kR"><option>Ulaşılamadı</option><option>Mazeretli</option><option>Çıkar çatışması</option><option>Diğer</option></select></div>
+<div class="row"><button type="submit" class="pri">Atla</button><button type="button" id="kCancel">Vazgeç</button></div>
+</form></dialog>
+
+<div class="toast" id="toast" role="status"></div>
+<script type="application/json" id="seed">{"surum":4,"guncellendi":"2026-11-23T16:45:00","donem":2027,"people":[{"id":"p001","g":"mc","n":"NESİBE KAYA UÇ","b":"Merkez","d":"Aktif","s":623,"k":264,"ks":"3 Yıl","y":{},"o":"2025 hücresi fotoğrafta başlıkla örtüşüyor, kontrol edin"},{"id":"p002","g":"mc","n":"EKİN ÇALIŞKAN","b":"Merkez","d":"Geçici Pasif","s":392,"k":147,"ks":"8 Yıl","y":{},"o":"2025: Geçici pasif"},{"id":"p003","g":"mc","n":"ASİYE TATLI","b":"Merkez","d":"Şehir Dışında","s":null,"k":null,"ks":"","y":{},"o":"2025: Şehir dışında. Rize Barosu kıdem listesinde kaydı yok."},{"id":"p004","g":"mc","n":"CENGİZ AYHAN","b":"Merkez","d":"Listeden Çıktı","s":370,"k":127,"ks":"8 Yıl 11 Ay","y":{},"o":"2025: Listeden çıktı"},{"id":"p005","g":"mc","n":"PINAR KASPAROĞLU","b":"Merkez","d":"Aktif","s":503,"k":226,"ks":"4 Yıl 9 Ay","y":{"2025":1,"2026":2},"o":""},{"id":"p006","g":"mc","n":"RAMAZAN SARI","b":"Merkez","d":"Aktif","s":431,"k":180,"ks":"6 Yıl 10 Ay","y":{"2025":1,"2026":1},"o":""},{"id":"p007","g":"mc","n":"İMRAN NALKIRAN","b":"Merkez","d":"Aktif","s":531,"k":244,"ks":"4 Yıl","y":{"2025":2,"2026":1},"o":""},{"id":"p008","g":"mc","n":"NERMİN GÜNER","b":"Merkez","d":"Aktif","s":575,"k":267,"ks":"2 Yıl 8 Ay","y":{"2025":1,"2026":1},"o":""},{"id":"p009","g":"mc","n":"HÜMEYRA BÜYÜK","b":"Merkez","d":"Aktif","s":581,"k":269,"ks":"2 Yıl 7 Ay","y":{"2025":1,"2026":1},"o":""},{"id":"p010","g":"mc","n":"NURULLAH SOBA","b":"Merkez","d":"Aktif","s":582,"k":272,"ks":"2 Yıl 6 Ay","y":{"2025":1,"2026":1},"o":""},{"id":"p011","g":"mc","n":"BATUHAN ÇELİK","b":"Merkez","d":"Aktif","s":589,"k":277,"ks":"2 Yıl 2 Ay","y":{"2025":1,"2026":1},"o":""},{"id":"p012","g":"mc","n":"EMİNE ÖZTÜRK","b":"Merkez","d":"Aktif","s":616,"k":296,"ks":"1 Yıl 10 Ay","y":{"2025":1,"2026":1},"o":""},{"id":"p013","g":"mc","n":"ALİHAN YETİMOĞLU","b":"Merkez","d":"Aktif","s":433,"k":178,"ks":"6 Yıl 10 Ay","y":{"2025":1,"2026":1},"o":""},{"id":"p014","g":"mc","n":"BÜŞRA NUR YEDİYILDIZ","b":"Merkez","d":"Aktif","s":542,"k":197,"ks":"5 Yıl 10 Ay","y":{"2025":1,"2026":1},"o":""},{"id":"p015","g":"mc","n":"ELİF KOPUZ KAYABAŞI","b":"Merkez","d":"Aktif","s":547,"k":54,"ks":"17 Yıl 10 Ay","y":{"2025":1,"2026":0},"o":"2026: Görevi iade etti"},{"id":"p016","g":"mc","n":"RÜMEYSA GÜMÜŞ","b":"Merkez","d":"Aktif","s":562,"k":259,"ks":"3 Yıl 1 Ay","y":{"2025":1,"2026":1},"o":""},{"id":"p017","g":"mc","n":"HAVVA HAVUZ","b":"Merkez","d":"Aktif","s":573,"k":266,"ks":"2 Yıl 9 Ay","y":{"2025":1,"2026":1},"o":""},{"id":"p018","g":"mc","n":"SEÇİL AKBABA","b":"Merkez","d":"Aktif","s":324,"k":101,"ks":"11 Yıl","y":{"2025":1,"2026":1},"o":""},{"id":"p019","g":"mc","n":"SAADET SEVİMLİ","b":"Merkez","d":"Aktif","s":628,"k":202,"ks":"5 Yıl 7 Ay","y":{"2025":1,"2026":1},"o":""},{"id":"p020","g":"mc","n":"ABDÜLMECİD KARADAŞ","b":"Merkez","d":"Aktif","s":622,"k":248,"ks":"3 Yıl 10 Ay","y":{"2026":0},"o":"2025: \"Defalarca\" görev almış (sayı girilmeli); 2026: Görevi iade etti"},{"id":"p021","g":"mc","n":"ENES FARUK KASAP","b":"Merkez","d":"Aktif","s":412,"k":160,"ks":"7 Yıl 2 Ay","y":{"2025":1,"2026":1},"o":""},{"id":"p022","g":"mc","n":"ÖMER SOMAY","b":"Merkez","d":"Aktif","s":219,"k":31,"ks":"23 Yıl 9 Ay","y":{"2025":1,"2026":1},"o":""},{"id":"p023","g":"mc","n":"DERYA UZUN","b":"Merkez","d":"Aktif","s":381,"k":141,"ks":"8 Yıl 1 Ay","y":{"2025":1,"2026":1},"o":""},{"id":"p024","g":"mc","n":"ELİF AKSU","b":"Merkez","d":"Aktif","s":536,"k":245,"ks":"3 Yıl 10 Ay","y":{"2025":1,"2026":1},"o":""},{"id":"p025","g":"mc","n":"ELİFNUR KÖSE","b":"Merkez","d":"Aktif","s":533,"k":243,"ks":"4 Yıl","y":{"2025":1,"2026":1},"o":""},{"id":"p026","g":"mc","n":"HÜSNA PURSA","b":"Merkez","d":"Aktif","s":484,"k":206,"ks":"5 Yıl 2 Ay","y":{"2025":1,"2026":1},"o":""},{"id":"p027","g":"mc","n":"İNCİ KARSLI","b":"Merkez","d":"Aktif","s":458,"k":191,"ks":"6 Yıl","y":{"2025":1,"2026":1},"o":""},{"id":"p028","g":"mc","n":"HATİCE ÇİL","b":"Merkez","d":"Aktif","s":518,"k":238,"ks":"4 Yıl 1 Ay","y":{"2025":1,"2026":1},"o":""},{"id":"p029","g":"mc","n":"SEDA DÖNMEZ DOĞAN","b":"Merkez","d":"Aktif","s":380,"k":123,"ks":"9 Yıl 2 Ay","y":{"2025":1,"2026":1},"o":""},{"id":"p030","g":"mc","n":"MİRAÇ YILMAZ","b":"Merkez","d":"Aktif","s":459,"k":195,"ks":"5 Yıl 10 Ay","y":{"2025":1,"2026":1},"o":""},{"id":"p031","g":"mc","n":"EMEL ÇELİK YETİMOĞLU","b":"Merkez","d":"Aktif","s":387,"k":143,"ks":"8 Yıl 1 Ay","y":{"2025":1,"2026":1},"o":""},{"id":"p032","g":"mc","n":"ZEYNEP ÖZTÜRK YILMAZ","b":"Merkez","d":"Aktif","s":396,"k":152,"ks":"7 Yıl 11 Ay","y":{"2025":1,"2026":1},"o":""},{"id":"p033","g":"mc","n":"ENSAR PURSA","b":"Merkez","d":"Aktif","s":406,"k":156,"ks":"7 Yıl 7 Ay","y":{"2025":1,"2026":1},"o":""},{"id":"p034","g":"mc","n":"MUHAMMET ÜZEYİR KAYA","b":"Merkez","d":"Aktif","s":417,"k":162,"ks":"7 Yıl 1 Ay","y":{"2025":1,"2026":1},"o":""},{"id":"p035","g":"mc","n":"ÇAĞLAR YAZICI","b":"Merkez","d":"Aktif","s":453,"k":187,"ks":"6 Yıl 2 Ay","y":{"2025":1,"2026":1},"o":""},{"id":"p036","g":"mc","n":"TUĞÇE HACIÖMEROĞLU","b":"Merkez","d":"Aktif","s":343,"k":107,"ks":"10 Yıl","y":{"2025":1,"2026":1},"o":""},{"id":"p037","g":"mc","n":"HAMDİYE GÜNGÖR SOMAY","b":"Merkez","d":"Aktif","s":287,"k":75,"ks":"14 Yıl 7 Ay","y":{"2025":1,"2026":1},"o":""},{"id":"p038","g":"mc","n":"İSMAİL KARACA","b":"Merkez","d":"Aktif","s":588,"k":276,"ks":"2 Yıl 3 Ay","y":{"2025":1,"2026":1},"o":""},{"id":"p039","g":"mc","n":"GÜLSÜM YILDIRIM","b":"Merkez","d":"Aktif","s":276,"k":69,"ks":"15 Yıl 7 Ay","y":{"2025":1,"2026":1},"o":""},{"id":"p040","g":"mc","n":"FİLİZ GÜL KAYA","b":"Merkez","d":"Aktif","s":244,"k":51,"ks":"19 Yıl 11 Ay","y":{"2025":1,"2026":1},"o":""},{"id":"p041","g":"mc","n":"ZEHRA KAZDAL","b":"Merkez","d":"Aktif","s":591,"k":281,"ks":"2 Yıl 2 Ay","y":{"2025":1,"2026":1},"o":""},{"id":"p042","g":"mc","n":"GURUR TAHA ŞENKAYA","b":"Merkez","d":"Aktif","s":595,"k":284,"ks":"2 Yıl 2 Ay","y":{"2025":1,"2026":1},"o":""},{"id":"p043","g":"mc","n":"BÜŞRA UZUN","b":"Merkez","d":"Aktif","s":571,"k":265,"ks":"2 Yıl 11 Ay","y":{"2025":1,"2026":0},"o":""},{"id":"p044","g":"mc","n":"MECİT RIDVAN YAVUZ","b":"Merkez","d":"Aktif","s":601,"k":286,"ks":"2 Yıl 1 Ay","y":{"2025":1,"2026":0},"o":""},{"id":"p045","g":"mc","n":"SENA TABAK","b":"Merkez","d":"Aktif","s":535,"k":246,"ks":"3 Yıl 10 Ay","y":{"2025":1,"2026":0},"o":""},{"id":"p046","g":"mc","n":"MEHMET KAYABAŞI","b":"Merkez","d":"Aktif","s":548,"k":53,"ks":"18 Yıl 10 Ay","y":{"2025":1,"2026":0},"o":""},{"id":"p047","g":"mc","n":"BATIKAN NACİ GÜZEL","b":"Merkez","d":"Aktif","s":385,"k":136,"ks":"8 Yıl 2 Ay","y":{"2025":1,"2026":0},"o":""},{"id":"p048","g":"mc","n":"MERVE KARAHAN TEMİZEL","b":"Merkez","d":"Aktif","s":326,"k":99,"ks":"11 Yıl 2 Ay","y":{"2025":1,"2026":0},"o":""},{"id":"p049","g":"mc","n":"YUNUS EMRE DELİBALTA","b":"Merkez","d":"Aktif","s":563,"k":260,"ks":"3 Yıl 1 Ay","y":{"2025":1,"2026":0},"o":""},{"id":"p050","g":"mc","n":"MERVE SUMAN","b":"Merkez","d":"Aktif","s":561,"k":258,"ks":"3 Yıl 1 Ay","y":{"2025":1,"2026":0},"o":""},{"id":"p051","g":"mc","n":"SEZEN SİVRİ","b":"Merkez","d":"Aktif","s":609,"k":220,"ks":"4 Yıl 10 Ay","y":{"2025":1,"2026":0},"o":""},{"id":"p052","g":"mc","n":"RUKİYYE KUMBASAR","b":"Merkez","d":"Aktif","s":585,"k":273,"ks":"2 Yıl 6 Ay","y":{"2025":1,"2026":0},"o":""},{"id":"p053","g":"mc","n":"HİCLAL DEVRAN","b":"Merkez","d":"Aktif","s":421,"k":165,"ks":"7 Yıl 1 Ay","y":{"2025":1,"2026":0},"o":""},{"id":"p054","g":"mc","n":"MEHMET FATİH ÇATAKLI","b":"Merkez","d":"Aktif","s":631,"k":279,"ks":"2 Yıl 2 Ay","y":{"2025":1,"2026":0},"o":""},{"id":"p055","g":"mc","n":"KEREM SARIHAN","b":"Merkez","d":"Aktif","s":514,"k":231,"ks":"4 Yıl 3 Ay","y":{"2025":1,"2026":1},"o":""},{"id":"p056","g":"mc","n":"ERDAL ÖZDEMİR","b":"Merkez","d":"Aktif","s":632,"k":301,"ks":"1 Yıl 3 Ay","y":{"2025":0,"2026":1},"o":""},{"id":"p057","g":"mc","n":"SENA AVCILAR","b":"Merkez","d":"Aktif","s":451,"k":188,"ks":"6 Yıl 2 Ay","y":{"2025":1,"2026":0},"o":""},{"id":"p058","g":"mc","n":"SEMRA AKSU DURMUŞ","b":"Merkez","d":"Aktif","s":344,"k":108,"ks":"10 Yıl","y":{"2025":1,"2026":1},"o":""},{"id":"p059","g":"mc","n":"NURGÜL KOPUZ","b":"Merkez","d":"Aktif","s":528,"k":242,"ks":"4 Yıl","y":{"2025":0,"2026":2},"o":""},{"id":"p060","g":"mc","n":"AYŞEGÜL GÜLSÜN UÇAK","b":"Merkez","d":"Aktif","s":552,"k":254,"ks":"3 Yıl 4 Ay","y":{"2025":1,"2026":1},"o":""},{"id":"p061","g":"mc","n":"MEHMET ERTEM","b":"Merkez","d":"Aktif","s":446,"k":114,"ks":"9 Yıl 9 Ay","y":{"2025":0,"2026":1},"o":""},{"id":"p062","g":"mc","n":"MEHTAP ANLAMIŞ ERTEM","b":"Merkez","d":"Aktif","s":347,"k":289,"ks":"2 Yıl 1 Ay","y":{"2025":0,"2026":1},"o":""},{"id":"p063","g":"mc","n":"OSMAN DİREN","b":"Merkez","d":"Aktif","s":423,"k":170,"ks":"7 Yıl 1 Ay","y":{"2025":1,"2026":2},"o":""},{"id":"p064","g":"mc","n":"İLKER GÜZEL","b":"Merkez","d":"Aktif","s":579,"k":270,"ks":"2 Yıl 7 Ay","y":{"2025":0,"2026":1},"o":""},{"id":"p065","g":"mc","n":"CEYDA NARMAN","b":"Merkez","d":"Aktif","s":640,"k":305,"ks":"9 Ay","y":{"2025":0,"2026":1},"o":""},{"id":"p066","g":"mc","n":"FATMA GÜL ÇELİK","b":"Merkez","d":"Aktif","s":607,"k":292,"ks":"2 Yıl","y":{"2025":0,"2026":1},"o":""},{"id":"p067","g":"mc","n":"BÜŞRA SENA DERVİŞOĞLU","b":"Merkez","d":"Aktif","s":639,"k":228,"ks":"4 Yıl 6 Ay","y":{"2025":0,"2026":1},"o":""},{"id":"p068","g":"mc","n":"YAĞMUR ZAMAN","b":"Merkez","d":"Aktif","s":460,"k":157,"ks":"7 Yıl 7 Ay","y":{"2025":0,"2026":1},"o":""},{"id":"p069","g":"mc","n":"RAHMİ SEYMENOĞLU","b":"Merkez","d":"Aktif","s":642,"k":307,"ks":"7 Ay","y":{"2025":0,"2026":1},"o":""},{"id":"p070","g":"mc","n":"ESMA ALKAN LEVENT","b":"Merkez","d":"Aktif","s":524,"k":237,"ks":"4 Yıl 1 Ay","y":{"2025":0,"2026":1},"o":""},{"id":"p071","g":"mc","n":"ÖZLEM MUTLU TÜREMEN","b":"Merkez","d":"Aktif","s":650,"k":65,"ks":"16 Yıl 6 Ay","y":{"2025":0,"2026":0},"o":""},{"id":"p072","g":"mc","n":"MERVE NALKIRAN","b":"Merkez","d":"Aktif","s":474,"k":198,"ks":"5 Yıl 10 Ay","y":{"2025":0,"2026":1},"o":""},{"id":"p073","g":"mc","n":"İREM AYDIN SOBA","b":"Merkez","d":"Aktif","s":647,"k":294,"ks":"1 Yıl 11 Ay","y":{"2025":0,"2026":0},"o":""},{"id":"p074","g":"mc","n":"ELANUR KARTAL ONAY","b":"Merkez","d":"Aktif","s":653,"k":116,"ks":"9 Yıl 8 Ay","y":{"2025":0,"2026":0},"o":""},{"id":"p075","g":"mc","n":"SÜMEYYE YAĞCI","b":"Merkez","d":"Aktif","s":649,"k":211,"ks":"5 Yıl","y":{"2025":0,"2026":0},"o":""},{"id":"p076","g":"mc","n":"SELEM ARTAN KAZDAL","b":"Merkez","d":"Aktif","s":422,"k":168,"ks":"7 Yıl 1 Ay","y":{"2025":0,"2026":1,"2027":1},"o":""},{"id":"p077","g":"mc","n":"SENDENUR KAZDAL ŞANAL","b":"Merkez","d":"Aktif","s":362,"k":122,"ks":"9 Yıl 2 Ay","y":{"2025":0,"2026":0},"o":""},{"id":"p078","g":"mc","n":"ERDEM KARAOSMAN","b":"Merkez","d":"Aktif","s":577,"k":204,"ks":"5 Yıl 5 Ay","y":{"2025":0,"2026":0},"o":""},{"id":"p079","g":"mc","n":"İBRAHİM HAKKI BÜYÜK","b":"Merkez","d":"Aktif","s":652,"k":311,"ks":"2 Ay","y":{"2025":0,"2026":0},"o":""},{"id":"p080","g":"mc","n":"DİLARA OKUMUŞ","b":"Çayeli","d":"Listeden Çıktı","s":488,"k":208,"ks":"5 Yıl 1 Ay","y":{"2025":1,"2026":1},"o":"2026: Listeden çıktı"},{"id":"p081","g":"mc","n":"AYŞE YORMAZ","b":"Çayeli","d":"Aktif","s":501,"k":222,"ks":"4 Yıl 10 Ay","y":{"2025":1,"2026":1},"o":""},{"id":"p082","g":"mc","n":"ERTUĞRUL SUİÇMEZ","b":"Çayeli","d":"Aktif","s":592,"k":280,"ks":"2 Yıl 2 Ay","y":{"2025":2,"2026":1},"o":""},{"id":"p083","g":"mc","n":"DEFNE KARAKUŞ","b":"Çayeli","d":"Aktif","s":627,"k":300,"ks":"1 Yıl 7 Ay","y":{"2025":1,"2026":1},"o":""},{"id":"p084","g":"mc","n":"OĞUZHAN İHTİYAR","b":"Çayeli","d":"Aktif","s":629,"k":298,"ks":"1 Yıl 7 Ay","y":{"2025":1,"2026":1},"o":""},{"id":"p085","g":"pz","n":"HASAN TOPALOĞLU","b":"Pazar","d":"Aktif","s":298,"k":85,"ks":"13 Yıl 7 Ay","y":{"2025":1,"2026":1},"o":""},{"id":"p086","g":"pz","n":"ÇAĞLANUR MERT","b":"Pazar","d":"Aktif","s":604,"k":290,"ks":"2 Yıl","y":{"2025":1,"2026":1},"o":""},{"id":"p087","g":"pz","n":"ŞEYMA NUR AKARSU","b":"Pazar","d":"Aktif","s":615,"k":132,"ks":"8 Yıl 3 Ay","y":{"2025":1,"2026":1},"o":""},{"id":"p088","g":"pz","n":"CEREN KARAOĞLU","b":"Pazar","d":"Aktif","s":618,"k":295,"ks":"1 Yıl 10 Ay","y":{"2025":1,"2026":1},"o":""},{"id":"p089","g":"pz","n":"RIDVAN OKUTAN","b":"Pazar","d":"Aktif","s":378,"k":131,"ks":"8 Yıl 8 Ay","y":{"2025":1,"2026":0},"o":""},{"id":"p090","g":"pz","n":"MUHAMMET ENSAR OKUTAN","b":"Pazar","d":"Aktif","s":415,"k":163,"ks":"7 Yıl 1 Ay","y":{"2025":1,"2026":0},"o":""},{"id":"p091","g":"pz","n":"GAMZE NUR CİVAOĞLU","b":"Pazar","d":"Aktif","s":492,"k":216,"ks":"5 Yıl","y":{"2025":1,"2026":1},"o":""},{"id":"p092","g":"pz","n":"SİMGE ETİK","b":"Pazar","d":"Aktif","s":520,"k":234,"ks":"4 Yıl 2 Ay","y":{"2025":1,"2026":0},"o":""},{"id":"p093","g":"pz","n":"EMİNE BUÇAN","b":"Pazar","d":"Aktif","s":399,"k":154,"ks":"7 Yıl 8 Ay","y":{"2025":1,"2026":0},"o":""},{"id":"p094","g":"pz","n":"MUSTAFA BUÇAN","b":"Pazar","d":"Aktif","s":351,"k":111,"ks":"9 Yıl 10 Ay","y":{"2025":0,"2026":1},"o":""},{"id":"p095","g":"pz","n":"SEDA ASLIŞEN","b":"Pazar","d":"Aktif","s":603,"k":288,"ks":"2 Yıl 1 Ay","y":{"2025":1,"2026":0},"o":""},{"id":"p096","g":"pz","n":"MELİKE YENİLMEZ","b":"Pazar","d":"Aktif","s":611,"k":227,"ks":"4 Yıl 7 Ay","y":{"2025":1,"2026":0},"o":""},{"id":"p097","g":"pz","n":"ÖMÜRCAN YAYLACI","b":"Pazar","d":"Aktif","s":630,"k":302,"ks":"1 Yıl 3 Ay","y":{"2025":0,"2026":1},"o":""},{"id":"p098","g":"pz","n":"ÇAĞTAY İBRAHİM ŞENTÜRK","b":"Pazar","d":"Aktif","s":566,"k":261,"ks":"3 Yıl 1 Ay","y":{"2025":0,"2026":2},"o":""},{"id":"p099","g":"pz","n":"BEGÜM YILDIRIM","b":"Pazar","d":"Aktif","s":633,"k":274,"ks":"2 Yıl 4 Ay","y":{"2025":0,"2026":1},"o":""},{"id":"p100","g":"pz","n":"MERYEM ZENGİN","b":"Pazar","d":"Aktif","s":620,"k":297,"ks":"1 Yıl 9 Ay","y":{"2025":0,"2026":1},"o":""},{"id":"p101","g":"pz","n":"MERVE TUANA BOZKAN","b":"Pazar","d":"Aktif","s":637,"k":304,"ks":"10 Ay","y":{"2025":0,"2026":1},"o":""},{"id":"p102","g":"pz","n":"ÖZGENUR BAŞ","b":"Pazar","d":"Aktif","s":613,"k":133,"ks":"8 Yıl 3 Ay","y":{"2025":0,"2026":0},"o":""}],"log":[],"skip":{"mc":[],"pz":[]},"gecmis":[{"ts":"2026-11-23T16:45:00","by":"Kurulum","msg":"Liste oluşturuldu (102 avukat, 23.11.2026 kıdem listesi)"}]}</script>
+<script>
+{
+const REPO="erenyylc53/rize-adli-yardim",BRANCH="main",FILE="data.json";
+const STAT=["Aktif","Geçici Pasif","Şehir Dışında","Listeden Çıktı","Muaf"];
+const TURLER=["Hukuk","Ceza (CMK dışı)","İdari","İcra","Danışmanlık","Diğer"];
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const title=s=>String(s).toLocaleLowerCase("tr-TR").replace(/(^|\s)\S/g,c=>c.toLocaleUpperCase("tr-TR"));
+const toast=t=>{const e=$("toast");e.textContent=t;e.classList.add("on");clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove("on"),2400)};
+const fmtD=d=>{const[a,b,c]=String(d||"").split("-");return c?`${c}.${b}.${a}`:""};
+const today=()=>{const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
+const nowISO=()=>{const n=new Date();return new Date(n-n.getTimezoneOffset()*6e4).toISOString().slice(0,19)};
+const store={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},set:(k,v)=>{try{v==null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch(e){}}};
+const b64e=s=>btoa(unescape(encodeURIComponent(s))),b64d=s=>decodeURIComponent(escape(atob(s.replace(/\s/g,""))));
+
+let S=JSON.parse($("seed").textContent),sha=null,src="gömülü";
+try{const c=JSON.parse(store.get("aya-cache")||"null");if(c&&c.data&&c.data.guncellendi>=S.guncellendi){S=c.data;src="önbellek"}}catch(e){}
+let view=store.get("aya-view")||"sira",g=store.get("aya-g")||"mc";
+let tok=store.get("aya-tok"),who=store.get("aya-who")||"";
+let editRec=null,editPer=null,busy=false,online=false;
+const isAdm=()=>!!tok;
+const byId=id=>S.people.find(p=>p.id===id);
+const DON=()=>S.donem||2027;
+
+function calc(p){
+  const y={};for(const[k,v]of Object.entries(p.y||{}))y[k]=v||0;
+  for(const r of S.log){if(r.pid===p.id&&r.durum!=="İade edildi"){y[r.yil]=(y[r.yil]||0)+1}}
+  const d=DON(),cur=y[d]||0,five=[1,2,3,4,5].reduce((a,i)=>a+(y[d-i]||0),0);
+  return Object.assign({},p,{yy:y,cur,five});
+}
+function list(gg){return S.people.filter(p=>p.g===gg).map(calc).sort((a,b)=>(b.k??-1)-(a.k??-1))}
+function ranked(l,gg){
+  const act=l.filter(p=>p.d==="Aktif"&&p.k!=null);act.forEach((p,i)=>p.r=i+1);
+  const sk=((S.skip||{})[gg]||[]).map(x=>x.id||x);
+  const q=act.slice().sort((a,b)=>(a.cur-b.cur)||(b.k-a.k));
+  return q.filter(p=>!sk.includes(p.id)).concat(q.filter(p=>sk.includes(p.id)));
+}
+
+/* ---------- GitHub ---------- */
+const api=(p,o={})=>fetch("https://api.github.com/repos/"+REPO+p,Object.assign({cache:"no-store"},o,{headers:Object.assign({"Accept":"application/vnd.github+json"},tok?{"Authorization":"Bearer "+tok}:{},o.headers||{})}));
+async function pull(){
+  try{
+    let data=null;
+    if(tok){const r=await api("/contents/"+FILE+"?ref="+BRANCH);if(r.status===401){logout(true);throw new Error("auth")}if(!r.ok)throw new Error(r.status);const j=await r.json();sha=j.sha;data=JSON.parse(b64d(j.content))}
+    else{let r=await fetch("https://raw.githubusercontent.com/"+REPO+"/"+BRANCH+"/"+FILE+"?t="+Date.now(),{cache:"no-store"}).catch(()=>null);if(!r||!r.ok)r=await fetch(FILE+"?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw new Error(r.status);data=await r.json()}
+    if(data&&Array.isArray(data.people)){S=data;src="sunucu";online=true;store.set("aya-cache",JSON.stringify({data}))}
+  }catch(e){online=false}
+  render();
+}
+async function commit(msg,mutate){
+  if(!tok){toast("Önce yönetici girişi yapın");return false}
+  if(busy){toast("Önceki işlem sürüyor");return false}
+  busy=true;mutate(S);render();
+  for(let i=0;i<3;i++){
+    try{
+      const r=await api("/contents/"+FILE+"?ref="+BRANCH);if(!r.ok)throw {code:r.status};
+      const j=await r.json(),data=JSON.parse(b64d(j.content));
+      mutate(data);data.guncellendi=nowISO();
+      data.gecmis=[{ts:data.guncellendi,by:who||"Yönetici",msg}].concat(data.gecmis||[]).slice(0,300);
+      const body=JSON.stringify(data,null,1);
+      const p=await api("/contents/"+FILE,{method:"PUT",body:JSON.stringify({message:msg+" ("+(who||"yönetici")+")",content:b64e(body),sha:j.sha,branch:BRANCH})});
+      if(p.status===409||p.status===422)continue;
+      if(!p.ok)throw {code:p.status};
+      const pj=await p.json();sha=pj.content.sha;S=data;online=true;store.set("aya-cache",JSON.stringify({data}));busy=false;render();return true;
+    }catch(e){if(e&&e.code===401){logout(true)}busy=false;toast(e&&e.code===401?"Anahtar geçersiz; yeniden giriş yapın":e&&e.code===403?"Bu anahtarın yazma yetkisi yok":"Kaydedilemedi; internet bağlantısını kontrol edin");await pull();return false}
+  }
+  busy=false;toast("Aynı anda başka bir değişiklik yapıldı; tekrar deneyin");await pull();return false;
+}
+
+/* ---------- render ---------- */
+function render(){
+  $("static").hidden=true;$("app").hidden=false;
+  document.querySelectorAll("#tabs button").forEach(b=>b.setAttribute("aria-current",b.dataset.v===view?"page":"false"));
+  document.querySelectorAll("#seg button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.g===g));
+  $("seg").hidden=!(view==="sira"||view==="liste"||view==="ist");
+  for(const[v,id]of[["sira","vSira"],["liste","vListe"],["kayit","vKayit"],["ist","vIst"],["ayar","vAyar"]])$(id).hidden=view!==v;
+  const t=S.guncellendi?new Date(S.guncellendi):null;
+  $("cSync").textContent=(online?"Güncel":"Çevrimdışı")+(t?" · "+t.toLocaleDateString("tr-TR")+" "+t.toLocaleTimeString("tr-TR",{hour:"2-digit",minute:"2-digit"}):"");
+  $("cSync").className="chip "+(online?"ok":"bad");
+  $("cAdm").hidden=!isAdm();$("cAdm").className="chip adm";$("cAdm").textContent="Yönetici: "+(who||"giriş yapıldı");
+  $("thDon").textContent=DON();
+  ({sira:rSira,liste:rListe,kayit:rKayit,ist:rIst,ayar:rAyar})[view]();
+}
+function rSira(){
+  const l=list(g),q=ranked(l,g),nx=q[0];
+  $("tName").textContent=nx?title(nx.n):"Aktif avukat yok";
+  $("tMeta").innerHTML=nx?`<span>Kıdem <b>${esc(nx.ks)}</b></span><span>Sicil <b>${nx.s}</b></span><span>${DON()} görevi <b>${nx.cur}</b></span><span>Son 5 yıl <b>${nx.five}</b></span>${g==="mc"?`<span>${esc(nx.b)}</span>`:""}`:"";
+  $("tAct").hidden=!isAdm();$("tRO").hidden=isAdm();
+  ["bGive","bSkip"].forEach(id=>$(id).disabled=busy||!nx);
+  $("queue").innerHTML=q.slice(1,7).map((p,i)=>`<li><span class="i">${i+2}</span><span>${esc(title(p.n))}</span><span class="k">${esc(p.ks)} · ${p.cur} görev</span></li>`).join("")||"<li>—</li>";
+  const act=l.filter(p=>p.d==="Aktif"),rec=S.log.filter(r=>r.g===g&&r.yil===DON());
+  $("figs").innerHTML=`<div class="fig"><b>${act.length}</b><span>aktif avukat</span></div><div class="fig"><b>${act.filter(p=>!p.cur).length}</b><span>${DON()}'de görev almadı</span></div><div class="fig"><b>${rec.filter(r=>r.durum!=="İade edildi").length}</b><span>${DON()} görevi</span></div><div class="fig"><b>${rec.filter(r=>r.durum==="İade edildi").length}</b><span>iade</span></div>`;
+  const rs=S.log.filter(r=>r.g===g).sort(sorter).slice(0,6);
+  $("recent").innerHTML=rs.map(r=>`<li>${fmtD(r.tarih)} · <b>${esc(title(byId(r.pid)?.n||"?"))}</b>${r.f?" · "+esc(r.f):""}${r.durum==="İade edildi"?' <span class="pill c">iade</span>':""}</li>`).join("")||"<li>Henüz görev kaydı yok.</li>";
+}
+const sorter=(a,b)=>(b.tarih||"").localeCompare(a.tarih||"")||(b.ts||0)-(a.ts||0);
+function rListe(){
+  const l=list(g),q=ranked(l,g),nx=q[0];
+  const fq=$("q").value.trim().toLocaleUpperCase("tr-TR"),fd=$("fD").value,d=DON();
+  $("tb").innerHTML=l.filter(p=>(!fq||p.n.includes(fq))&&(!fd||p.d===fd)).map(p=>`<tr class="click ${nx&&p.id===nx.id?"next":""} ${p.d!=="Aktif"?"off":""}" data-id="${p.id}" tabindex="0">
+<td class="n">${p.d==="Aktif"&&p.r?p.r:""}</td><td><b>${esc(title(p.n))}</b>${g==="mc"&&p.b!=="Merkez"?` <span class="pill">${esc(p.b)}</span>`:""}</td><td>${esc(p.d)}</td>
+<td class="n hide-s">${p.s??'<span class="warn">yok</span>'}</td><td style="white-space:nowrap">${esc(p.ks)}</td>
+<td class="n hide-s">${p.yy[d-2]??"–"}</td><td class="n hide-s">${p.yy[d-1]??"–"}</td><td class="n"><b>${p.cur}</b></td><td class="n">${p.five}</td><td class="note hide-s">${esc(p.o)}</td></tr>`).join("");
+}
+function rKayit(){
+  const fq=$("qa").value.trim().toLocaleUpperCase("tr-TR"),ft=$("fT").value,fs=$("fS").value;
+  const hay=r=>[byId(r.pid)?.n,r.f,r.birim,r.not].join(" ").toLocaleUpperCase("tr-TR");
+  const rows=S.log.filter(r=>(!ft||r.tur===ft)&&(!fs||(r.durum||"Verildi")===fs)&&(!fq||hay(r).includes(fq))).sort(sorter);
+  $("tbAll").innerHTML=rows.map(r=>`<tr class="${r.durum==="İade edildi"?"iade":""}"><td style="white-space:nowrap">${fmtD(r.tarih)}</td><td><b>${esc(title(byId(r.pid)?.n||"?"))}</b><br><span class="pill">${r.g==="mc"?"Merkez-Çayeli":"Pazar"}</span>${r.durum==="İade edildi"?' <span class="pill c">iade</span>':""}</td><td>${esc(r.f)||"–"}</td><td class="hide-s">${esc(r.tur)}</td><td class="hide-s">${esc(r.birim)}</td><td class="note hide-s">${esc(r.not)}</td><td><button class="mini" data-edit="${r.rid}">${isAdm()?"Düzenle":"Ayrıntı"}</button></td></tr>`).join("")||`<tr><td colspan="7">Bu süzgece uyan kayıt yok.</td></tr>`;
+  $("bNew").hidden=!isAdm();
+  $("allSum").textContent=`${rows.length} kayıt gösteriliyor · toplam ${S.log.length} (iade ${S.log.filter(r=>r.durum==="İade edildi").length})`;
+}
+function rIst(){
+  const l=list(g),act=l.filter(p=>p.d==="Aktif"),d=DON(),cs=act.map(p=>p.cur);
+  const mx=Math.max(1,...cs),mn=cs.length?Math.min(...cs):0;
+  const rec=S.log.filter(r=>r.g===g&&r.yil===d&&r.durum!=="İade edildi");
+  $("sFigs").innerHTML=`<div class="fig"><b>${rec.length}</b><span>${d} görevi</span></div><div class="fig"><b>${cs.length?(rec.length/cs.length).toFixed(1):0}</b><span>avukat başına</span></div><div class="fig"><b>${mn}–${Math.max(0,...cs)}</b><span>en az – en çok</span></div><div class="fig"><b>${act.filter(p=>!p.cur).length}</b><span>hiç görev almadı</span></div>`;
+  $("sBarT").textContent=d+" görev dağılımı";
+  $("sBars").innerHTML=act.slice().sort((a,b)=>b.cur-a.cur||(b.k-a.k)).map(p=>`<div class="bar"><span class="nm">${esc(title(p.n))}</span><span class="t"><i style="width:${p.cur/mx*100}%"></i></span><span class="v">${p.cur}</span></div>`).join("");
+  const m=Array(12).fill(0);rec.forEach(r=>{const k=+String(r.tarih).slice(5,7);if(k)m[k-1]++});const mm=Math.max(1,...m);
+  $("sMonths").innerHTML=m.map((v,i)=>`<div><span>${v||""}</span><i style="height:${v/mm*100}%"></i><span>${["Oca","Şub","Mar","Nis","May","Haz","Tem","Ağu","Eyl","Eki","Kas","Ara"][i]}</span></div>`).join("");
+  const tc={};rec.forEach(r=>tc[r.tur||"Diğer"]=(tc[r.tur||"Diğer"]||0)+1);const tm=Math.max(1,...Object.values(tc));
+  $("sTypes").innerHTML=Object.entries(tc).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="bar"><span class="nm">${esc(k)}</span><span class="t"><i style="width:${v/tm*100}%"></i></span><span class="v">${v}</span></div>`).join("")||'<p class="hint">Henüz kayıt yok.</p>';
+}
+function rAyar(){
+  $("admOut").hidden=isAdm();$("admIn").hidden=!isAdm();
+  $("admWho").innerHTML=`<b>${esc(who||"Yönetici")}</b> olarak giriş yapıldı. Görev verme ve düzenleme açık.`;
+  $("sDon").innerHTML=[2026,2027,2028,2029,2030].map(y=>`<option${y===DON()?" selected":""}>${y}</option>`).join("");$("sDon").disabled=!isAdm();
+  $("fRestore").disabled=!isAdm();
+  const c=S.people.map(calc).filter(p=>p.s==null||/kontrol|girilmeli/i.test(p.o||""));
+  $("checks").innerHTML=c.map(p=>`<li><b>${esc(title(p.n))}</b>: ${esc(p.s==null?"baro kıdem listesinde yok":p.o)}</li>`).join("")+"<li>2022–2024 görev sayıları arşivden girilmeli (avukata dokunup düzenleyin).</li>";
+  $("hist").innerHTML=(S.gecmis||[]).slice(0,40).map(h=>`<li>${esc(new Date(h.ts).toLocaleString("tr-TR",{dateStyle:"short",timeStyle:"short"}))} · ${esc(h.by)}: ${esc(h.msg)}</li>`).join("")||"<li>Henüz değişiklik yok.</li>";
+}
+
+/* ---------- actions ---------- */
+const nav=v=>{view=v;store.set("aya-view",v);render();window.scrollTo(0,0)};
+$("tabs").addEventListener("click",e=>{const b=e.target.closest("button");if(b)nav(b.dataset.v)});
+$("seg").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;g=b.dataset.g;store.set("aya-g",g);render()});
+$("fD").innerHTML='<option value="">Tüm durumlar</option>'+STAT.map(s=>`<option>${s}</option>`).join("");
+$("fT").innerHTML='<option value="">Tüm türler</option>'+TURLER.map(s=>`<option>${s}</option>`).join("");
+$("gTur").innerHTML=TURLER.map(s=>`<option>${s}</option>`).join("");
+["q","fD","qa","fT","fS"].forEach(id=>$(id).addEventListener("input",render));
+$("bPrint").addEventListener("click",()=>window.print());
+
+const peopleOpts=sel=>S.people.slice().sort((a,b)=>a.n.localeCompare(b.n,"tr")).map(p=>`<option value="${p.id}"${p.id===sel?" selected":""}>${esc(title(p.n))} · ${p.g==="mc"?"Merkez-Çayeli":"Pazar"}</option>`).join("");
+function openRec(r,pid){
+  editRec=r;const ro=!isAdm();
+  $("gT").textContent=r?(ro?"Görev ayrıntısı":"Görev kaydını düzenle"):"Görev ver";
+  $("gP").innerHTML=peopleOpts(r?r.pid:pid);
+  $("gD").value=r?r.tarih:today();
+  $("gY").innerHTML=[DON()-1,DON(),DON()+1].map(y=>`<option${y===(r?r.yil:DON())?" selected":""}>${y}</option>`).join("");
+  $("gF").value=r?r.f||"":"";$("gTur").value=r?r.tur||"Diğer":"Hukuk";$("gB").value=r?r.birim||"":"";$("gS").value=r?r.durum||"Verildi":"Verildi";$("gN").value=r?r.not||"":"";
+  $("birimler").innerHTML=[...new Set(S.log.map(x=>x.birim).filter(Boolean))].map(b=>`<option value="${esc(b)}">`).join("");
+  $("gMeta").textContent=r?`Kaydeden: ${r.by||"—"}${r.duzenleyen?" · Son düzenleyen: "+r.duzenleyen:""}`:"";
+  $("fGive").querySelectorAll("input,select,textarea").forEach(e=>e.disabled=ro);
+  $("fGive").querySelector("[type=submit]").hidden=ro;$("gDel").hidden=!r||ro;$("gDel").dataset.arm="";$("gDel").textContent="Kaydı sil";
+  $("dGive").showModal();
+}
+$("bGive").addEventListener("click",()=>{const nx=ranked(list(g),g)[0];if(nx)openRec(null,nx.id)});
+$("bNew").addEventListener("click",()=>openRec(null,null));
+$("gCancel").addEventListener("click",()=>$("dGive").close());
+$("tbAll").addEventListener("click",e=>{const b=e.target.closest("[data-edit]");if(b)openRec(S.log.find(r=>r.rid===b.dataset.edit))});
+$("fGive").addEventListener("submit",async e=>{
+  e.preventDefault();const p=byId($("gP").value);if(!p)return;
+  const d={pid:p.id,g:p.g,tarih:$("gD").value||today(),yil:+$("gY").value,f:$("gF").value.trim(),tur:$("gTur").value,birim:$("gB").value.trim(),durum:$("gS").value,not:$("gN").value.trim()};
+  $("dGive").close();
+  if(editRec){const rid=editRec.rid;await commit("Kayıt düzenlendi: "+title(p.n),s=>{const r=s.log.find(x=>x.rid===rid);if(r)Object.assign(r,d,{duzenleyen:who||"Yönetici"})})&&toast("Kayıt güncellendi")}
+  else{const rec=Object.assign({rid:"r"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),ts:Date.now(),by:who||"Yönetici"},d);
+    await commit("Görev verildi: "+title(p.n),s=>{if(!s.log.some(x=>x.rid===rec.rid))s.log.push(rec);s.skip=s.skip||{mc:[],pz:[]};s.skip[p.g]=(s.skip[p.g]||[]).filter(x=>(x.id||x)!==p.id)})&&toast(title(p.n)+" için görev kaydedildi")}
+});
+$("gDel").addEventListener("click",async e=>{
+  if(!e.target.dataset.arm){e.target.dataset.arm="1";e.target.textContent="Silmek için tekrar basın";return}
+  const rid=editRec.rid,n=title(byId(editRec.pid)?.n||"");$("dGive").close();
+  await commit("Kayıt silindi: "+n,s=>{s.log=s.log.filter(r=>r.rid!==rid)})&&toast("Kayıt silindi");
+});
+
+$("bSkip").addEventListener("click",()=>{const nx=ranked(list(g),g)[0];if(!nx)return;$("kWho").textContent=title(nx.n)+" bu turda atlanacak ve sıranın sonuna geçecek.";$("fSkip").dataset.id=nx.id;$("dSkip").showModal()});
+$("kCancel").addEventListener("click",()=>$("dSkip").close());
+$("fSkip").addEventListener("submit",async e=>{e.preventDefault();const id=$("fSkip").dataset.id,p=byId(id),why=$("kR").value;$("dSkip").close();
+  await commit("Atlandı ("+why+"): "+title(p.n),s=>{s.skip=s.skip||{mc:[],pz:[]};s.skip[p.g]=(s.skip[p.g]||[]).filter(x=>(x.id||x)!==id).concat({id,neden:why,tarih:today()})})&&toast(title(p.n)+" atlandı")});
+
+function openPer(id){
+  const p=calc(byId(id)),ro=!isAdm();editPer=id;
+  $("pT").textContent=title(p.n);
+  $("pInfo").textContent=`${p.g==="mc"?"Merkez-Çayeli":"Pazar"} · ${p.b} · Sicil ${p.s??"yok"} · Kıdem ${p.ks||"bilinmiyor"} · ${DON()} görevi ${p.cur}`;
+  $("pD").innerHTML=STAT.map(s=>`<option${s===p.d?" selected":""}>${s}</option>`).join("");
+  const base=byId(id).y||{};
+  $("pY").innerHTML=[4,3,2,1,0].map(i=>DON()-1-i).map(y=>`<label style="display:grid;gap:2px;font-size:13px;color:var(--soft)">${y}<input type="number" min="0" inputmode="numeric" data-y="${y}" value="${base[y]??""}"></label>`).join("");
+  $("pO").value=p.o||"";$("pEdit").disabled=ro;$("pSave").hidden=ro;
+  const ls=S.log.filter(r=>r.pid===id).sort(sorter);
+  $("pLog").innerHTML=ls.map(r=>`<li>${fmtD(r.tarih)}${r.f?" · "+esc(r.f):""}${r.birim?" · "+esc(r.birim):""}${r.durum==="İade edildi"?' <span class="pill c">iade</span>':""} <button type="button" class="mini" data-edit="${r.rid}">${ro?"Ayrıntı":"Düzenle"}</button></li>`).join("")||"<li>Kayıt yok</li>";
+  $("dPer").showModal();
+}
+$("tb").addEventListener("click",e=>{const tr=e.target.closest("tr[data-id]");if(tr)openPer(tr.dataset.id)});
+$("tb").addEventListener("keydown",e=>{if(e.key==="Enter"){const tr=e.target.closest("tr[data-id]");if(tr)openPer(tr.dataset.id)}});
+$("pLog").addEventListener("click",e=>{const b=e.target.closest("[data-edit]");if(!b)return;$("dPer").close();openRec(S.log.find(r=>r.rid===b.dataset.edit))});
+$("pCancel").addEventListener("click",()=>$("dPer").close());
+$("fPer").addEventListener("submit",async e=>{
+  e.preventDefault();const id=editPer,d=$("pD").value,o=$("pO").value.trim(),ys={};
+  $("pY").querySelectorAll("input").forEach(i=>{const v=i.value.trim();ys[i.dataset.y]=v===""?null:Math.max(0,+v||0)});
+  $("dPer").close();
+  await commit("Avukat bilgisi güncellendi: "+title(byId(id).n),s=>{const p=s.people.find(x=>x.id===id);if(!p)return;p.d=d;p.o=o;p.y=Object.assign({},p.y||{});for(const[k,v]of Object.entries(ys)){if(v==null)delete p.y[k];else p.y[k]=v}})&&toast("Güncellendi");
+});
+
+$("bLogin").addEventListener("click",async()=>{
+  const t=$("aTok").value.trim(),n=$("aName").value.trim();if(!t||!n){toast("Ad ve anahtar gerekli");return}
+  $("bLogin").disabled=true;
+  try{const r=await fetch("https://api.github.com/repos/"+REPO,{headers:{"Authorization":"Bearer "+t,"Accept":"application/vnd.github+json"}});
+    const j=r.ok?await r.json():null;
+    if(!j||!j.permissions||!j.permissions.push){toast("Anahtar bu depoya yazma yetkisi vermiyor");$("bLogin").disabled=false;return}
+    tok=t;who=n;store.set("aya-tok",t);store.set("aya-who",n);$("aTok").value="";toast("Giriş yapıldı");await pull();
+  }catch(e){toast("Bağlantı kurulamadı")}
+  $("bLogin").disabled=false;
+});
+function logout(silent){tok=null;store.set("aya-tok",null);if(!silent)toast("Çıkış yapıldı");render()}
+$("bLogout").addEventListener("click",()=>logout());
+$("sDon").addEventListener("change",async e=>{const y=+e.target.value;await commit("Dönem "+y+" olarak ayarlandı",s=>{s.donem=y;s.skip={mc:[],pz:[]}})});
+$("bRefresh").addEventListener("click",async()=>{await pull();toast(online?"Güncellendi":"Sunucuya ulaşılamadı")});
+
+function dl(name,data,type){try{const u=URL.createObjectURL(new Blob([data],{type}));const a=document.createElement("a");a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000)}catch(e){toast("İndirilemedi")}}
+$("bJson").addEventListener("click",()=>dl("adli-yardim-yedek-"+today()+".json",JSON.stringify(S,null,1),"application/json"));
+$("bCsv").addEventListener("click",()=>{
+  const q=v=>{v=String(v??"");return /[;"\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v},d=DON();
+  const out=[["Liste","Sıra","Ad Soyad","Bölge","Durum","Sicil","Kıdem",d-5,d-4,d-3,d-2,d-1,d,"5 Yıl","Not"]];
+  for(const gg of["mc","pz"]){const l=list(gg);ranked(l,gg);l.forEach(p=>out.push([gg==="mc"?"Merkez-Çayeli":"Pazar",p.d==="Aktif"&&p.r?p.r:"",p.n,p.b,p.d,p.s??"",p.ks,...[5,4,3,2,1].map(i=>p.yy[d-i]??""),p.cur,p.five,p.o||""]))}
+  out.push([]);out.push(["Tarih","Avukat","Liste","Dosya No","Tür","Birim","Durum","Dönem","Not","Kaydeden"]);
+  S.log.slice().sort((a,b)=>(a.tarih||"").localeCompare(b.tarih||"")).forEach(r=>out.push([fmtD(r.tarih),byId(r.pid)?.n||"",r.g==="mc"?"Merkez-Çayeli":"Pazar",r.f,r.tur,r.birim,r.durum||"Verildi",r.yil,r.not,r.by]));
+  dl("adli-yardim-"+today()+".csv","﻿"+out.map(r=>r.map(q).join(";")).join("\r\n"),"text/csv");
+});
+let pend=null;
+$("fRestore").addEventListener("change",async e=>{const f=e.target.files[0];e.target.value="";if(!f)return;
+  try{const b=JSON.parse(await f.text());if(!Array.isArray(b.people)||!Array.isArray(b.log))throw 0;pend=b;$("restoreMsg").innerHTML=`${b.people.length} avukat, ${b.log.length} kayıt. Ortak verinin yerine geçecek. <button class="mini danger" id="bDo">Onayla</button>`}catch(_){$("restoreMsg").textContent="Geçerli bir yedek değil."}});
+$("restoreMsg").addEventListener("click",async e=>{if(e.target.id!=="bDo"||!pend)return;const b=pend;pend=null;$("restoreMsg").textContent="";
+  await commit("Yedekten geri yüklendi",s=>{s.people=b.people;s.log=b.log;s.skip=b.skip||{mc:[],pz:[]};s.donem=b.donem||s.donem})&&toast("Yedek yüklendi")});
+
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&!busy)pull()});
+setInterval(()=>{if(!document.hidden&&!busy)pull()},tok?60000:180000);
+if("serviceWorker"in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(()=>{});
+render();pull();
+}
+</script>
+</body>
+</html>
