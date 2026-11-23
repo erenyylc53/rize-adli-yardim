@@ -377,7 +377,7 @@ async function pull(){
   try{let d;
     if(tok){const r=await api("/contents/"+FILE+"?ref="+BRANCH);if(r.status===401){logout(true);throw 0}if(!r.ok)throw 0;d=JSON.parse(b64d((await r.json()).content))}
     else{let r=await fetch("https://raw.githubusercontent.com/"+REPO+"/"+BRANCH+"/"+FILE+"?t="+Date.now(),{cache:"no-store"}).catch(()=>null);if(!r||!r.ok)r=await fetch(FILE+"?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;d=await r.json()}
-    if(d&&Array.isArray(d.people)){S=norm(d);online=true;LS.set("aya-cache",JSON.stringify({data:d}))}
+    if(d&&Array.isArray(d.people)){online=true;if((d.guncellendi||"")>=(S.guncellendi||"")){S=norm(d);LS.set("aya-cache",JSON.stringify({data:d}))}}
   }catch(e){online=false}
   render();
 }
