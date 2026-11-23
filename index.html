@@ -31,7 +31,7 @@ html,body{margin:0}
 body{background:var(--bg);color:var(--ink);font:15.5px/1.5 Inter,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;overflow-x:clip;padding-bottom:calc(76px + env(safe-area-inset-bottom));-webkit-font-smoothing:antialiased}
 .serif{font-family:"Source Serif 4",Georgia,"Times New Roman",serif}
 .hdr{background:var(--navy);color:#fff;padding:calc(14px + env(safe-area-inset-top)) max(4vw,16px) 18px}
-.hdr .in{max-width:1200px;margin:0 auto;display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;justify-content:space-between}
+.hdr .hin{max-width:1200px;margin:0 auto;display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;justify-content:space-between}
 .brand{display:flex;gap:12px;align-items:center}
 .seal{width:42px;height:42px;border-radius:50%;border:1.5px solid var(--gold);display:grid;place-items:center;flex:none}
 .seal svg{width:22px;height:22px}
@@ -156,7 +156,7 @@ dialog::backdrop{background:rgba(8,15,28,.55)}
 </style>
 </head>
 <body>
-<header class="hdr"><div class="in">
+<header class="hdr"><div class="hin">
 <div class="brand"><div class="seal"><svg viewBox="0 0 24 24" fill="none" stroke="#b08d3c" stroke-width="1.8" stroke-linecap="round"><path d="M12 3v18M5 7h14M7.5 7L4 14a3.5 3.5 0 007 0L7.5 7zM16.5 7L13 14a3.5 3.5 0 007 0l-3.5-7zM8 21h8"/></svg></div>
 <div><h1>Adli Yardım Görev Çizelgesi</h1><p>Rize Barosu Adli Yardım Komisyonu</p></div></div>
 <div class="st"><span class="tag" id="tSync"><i class="d"></i><span>Yükleniyor</span></span><span class="tag adm" id="tAdm" hidden></span></div>
@@ -415,7 +415,7 @@ function rSira(){
   $("nActs").hidden=!adm();$("nRO").hidden=adm();$("bGive").disabled=$("bSkip").disabled=busy||!nx;$("bManual").disabled=busy;
   $("queue").innerHTML=q.slice(1,7).map((p,i)=>`<li><span class="i">${i+2}</span><span class="n">${esc(T(p.n))}</span><span class="k">${esc(p.ks)} · ${p.cur}</span></li>`).join("")||'<li class="empty">—</li>';
   const act=l.filter(p=>p.d==="Aktif"),rec=S.log.filter(r=>r.g===g&&yr(r)===d);
-  $("kpis").innerHTML=[[act.length,"aktif avukat"],[act.filter(p=>!p.cur).length,`${d}'de görev almadı`],[rec.filter(counts).length,`${d} görevi`],[rec.filter(r=>r.durum==="Bekliyor").length,"yanıt bekliyor"]].map(([v,l])=>`<div class="kpi"><b>${v}</b><span>${l}</span></div>`).join("");
+  $("kpis").innerHTML=[[act.length,"aktif avukat"],[act.filter(p=>!p.cur).length,`${d}'de görev almadı`],[act.reduce((a,p)=>a+p.cur,0),`${d} toplam görev`],[rec.filter(r=>r.durum==="Bekliyor").length,"yanıt bekliyor"]].map(([v,l])=>`<div class="kpi"><b>${v}</b><span>${l}</span></div>`).join("");
   const pd=S.log.filter(r=>r.g===g&&r.durum==="Bekliyor").sort(srt);
   $("pend").innerHTML=pd.map(r=>`<li><span><span class="n">${esc(T(P(r.pid)?.n))}</span><span class="sub2">${fd(r.tarih)}${r.f?" · "+esc(r.f):""}${r.birim?" · "+esc(r.birim):""}</span></span><span class="ac">${adm()?`<button class="b sm" data-acc="${r.rid}">Kabul</button><button class="b sm danger" data-ret="${r.rid}">İade</button>`:sPill(r.durum)}</span></li>`).join("")||'<li class="empty" style="display:block">Yanıt bekleyen görev yok.</li>';
 }
