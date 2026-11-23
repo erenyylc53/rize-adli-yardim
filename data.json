@@ -1,6 +1,6 @@
 {
  "surum": 5,
- "guncellendi": "2026-11-23T17:34:30",
+ "guncellendi": "2026-11-23T18:29:20",
  "people": [
   {
    "tel": "",
@@ -3850,9 +3850,20 @@
  ],
  "skip": {
   "mc": [],
-  "pz": []
+  "pz": [
+   {
+    "id": "p092",
+    "neden": "Ulaşılamadı",
+    "tarih": "2026-11-23"
+   }
+  ]
  },
  "gecmis": [
+  {
+   "ts": "2026-11-23T18:29:20",
+   "by": "Eren",
+   "msg": "Sırada atlandı (Ulaşılamadı): Simge Etik"
+  },
   {
    "ts": "2026-11-23T17:34:30",
    "by": "Eren",
