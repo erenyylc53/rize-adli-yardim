@@ -43,13 +43,28 @@ body{background:var(--bg);color:var(--ink);font:15.5px/1.5 Inter,-apple-system,"
 .tag.off .d{background:#f07a7a}
 .tag.adm{border-color:var(--gold);color:var(--gold)}
 .main{max-width:1200px;margin:0 auto;padding:18px max(4vw,16px) 24px}
-nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:10;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));background:var(--panel);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
-nav.tabs button{all:unset;cursor:pointer;display:grid;justify-items:center;gap:3px;padding:9px 2px 8px;font-size:12px;font-weight:500;color:var(--soft)}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:10;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));background:var(--panel);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+nav.tabs button{all:unset;cursor:pointer;display:grid;justify-items:center;gap:3px;padding:9px 1px 8px;font-size:11px;font-weight:500;color:var(--soft)}
 nav.tabs svg{width:22px;height:22px}
 nav.tabs button[aria-current=page]{color:var(--navy2)}
 @media(prefers-color-scheme:dark){nav.tabs button[aria-current=page]{color:var(--gold)}}
 nav.tabs button[aria-current=page] svg{stroke-width:2.3}
 nav.tabs button:focus-visible{outline:2px solid var(--gold)}
+nav.tabs button{position:relative}
+.nb{position:absolute;top:4px;left:calc(50% + 6px);min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--bad);color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center}
+@media(min-width:900px){.nb{position:static;margin-left:2px}}
+.dl{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.dc{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.dc .top{display:flex;justify-content:space-between;gap:8px;align-items:start}
+.dc .no{font-family:"Source Serif 4",Georgia,serif;font-weight:700;font-size:19px;line-height:1.2}
+.dc dl{display:grid;grid-template-columns:auto minmax(0,1fr);gap:3px 10px;margin:0;font-size:14px}
+.dc dt{color:var(--soft)}.dc dd{margin:0}
+.dc .ac{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto}
+.alert{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--waitbg);color:var(--wait);border-radius:14px;padding:12px 14px;font-weight:600;cursor:pointer;border:0;width:100%;font:600 15px Inter,system-ui,sans-serif;text-align:left}
+.qa{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.qa .b{justify-content:flex-start;height:auto;min-height:56px;padding:10px 14px;white-space:normal;text-align:left;line-height:1.25}
+details summary{cursor:pointer;font-weight:600;color:var(--navy2);padding:6px 0}
+@media(prefers-color-scheme:dark){details summary{color:var(--gold)}}
 @media(min-width:900px){body{padding-bottom:0}nav.tabs{position:static;display:flex;gap:4px;background:transparent;border:0;border-bottom:1px solid var(--line);padding:0;margin:0 0 20px}nav.tabs button{display:flex;gap:8px;align-items:center;padding:12px 16px;font-size:15px;border-bottom:2.5px solid transparent;margin-bottom:-1px}nav.tabs button[aria-current=page]{border-bottom-color:var(--gold);color:var(--ink)}nav.tabs svg{width:18px;height:18px}}
 .bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:16px}
 .seg{display:inline-flex;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:3px}
@@ -170,6 +185,7 @@ dialog::backdrop{background:rgba(8,15,28,.55)}
 <div class="main" id="app" hidden>
 <nav class="tabs" id="tabs">
 <button data-v="sira"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg>Sıra</button>
+<button data-v="dsy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M12 11v5M9.5 13.5h5"/></svg>Dosyalar<span class="nb" id="nbD" hidden></span></button>
 <button data-v="avk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5M16 4.6a3.5 3.5 0 010 6.8M18.5 14.8c1.7.8 2.7 2.5 3 5.2"/></svg>Avukatlar</button>
 <button data-v="kyt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 3h9l4 4v14H6zM14 3v5h5M9 13h7M9 17h5"/></svg>Görevler</button>
 <button data-v="rpr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 20V11M10 20V5M16 20v-6M21 20H3"/></svg>Rapor</button>
@@ -195,10 +211,18 @@ dialog::backdrop{background:rgba(8,15,28,.55)}
 <div class="kpis" style="margin-top:12px" id="kpis"></div>
 </div>
 <div style="display:grid;gap:16px">
+<button type="button" class="alert" id="dosAlert" hidden></button>
 <div class="card"><h3>Arkadan gelenler</h3><ol class="q" id="queue"></ol></div>
 <div class="card"><h3>Yanıt bekleyen görevler</h3><ul class="q pend" id="pend"></ul></div>
 </div>
 </div>
+</section>
+
+<!-- DOSYALAR -->
+<section id="v-dsy" hidden>
+<div class="bar"><div><h2 style="margin:0">Bekleyen dosyalar</h2><p class="hint" style="margin:2px 0 0">Adli yardım için avukat ataması bekleyen başvurular</p></div><button class="b pri" id="bAddDos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Dosya ekle</button></div>
+<div class="tools"><input class="in grow" id="qD" type="search" placeholder="Dosya no, birim, talep eden ara" aria-label="Dosyalarda ara"><select class="in" id="fDL" aria-label="Liste"><option value="">Tüm listeler</option><option value="mc">Merkez-Çayeli</option><option value="pz">Pazar</option></select></div>
+<div class="dl" id="dosL"></div>
 </section>
 
 <!-- AVUKATLAR -->
@@ -242,12 +266,29 @@ dialog::backdrop{background:rgba(8,15,28,.55)}
 <div class="card">
 <h2>Yönetici girişi</h2>
 <div id="lgOut">
-<p class="hint" style="margin:0 0 14px">Değişiklikleri yalnızca yönetici yapar. Diğer üyeler listeyi ve kayıtları görüntüler.</p>
-<div class="f"><label for="aN">Adınız</label><input id="aN" autocomplete="name"></div>
-<div class="f"><label for="aT">Erişim anahtarı</label><input id="aT" type="password" autocomplete="off" placeholder="github_pat_…"></div>
+<p class="hint" style="margin:0 0 14px">Komisyon üyeleri ortak komisyon şifresiyle giriş yapar ve görev verebilir. Giriş yapmayanlar yalnızca görüntüler.</p>
+<div class="f"><label for="aN">Adınız</label><input id="aN" autocomplete="name" placeholder="Kayıtlarda bu ad görünür"></div>
+<div class="f"><label for="aP">Komisyon şifresi</label><input id="aP" type="password" autocomplete="current-password"></div>
 <button class="b pri" id="bLogin">Giriş yap</button>
+<p class="hint" id="noAuth" hidden>Komisyon şifresi henüz belirlenmedi. Aşağıdaki "İlk kurulum" bölümünden bir kez belirlenmesi gerekir.</p>
 </div>
-<div id="lgIn" hidden><p id="lgWho" style="margin:0 0 14px"></p><button class="b danger" id="bLogout">Çıkış yap</button></div>
+<div id="lgIn" hidden>
+<p id="lgWho" style="margin:0 0 14px"></p>
+<div class="qa">
+<button type="button" class="b" id="qManual"><b>Elle görev ata</b></button>
+<button type="button" class="b" id="qPast"><b>Geçmiş görev ekle</b></button>
+<button type="button" class="b" id="qDos"><b>Bekleyen dosya ekle</b></button>
+<button type="button" class="b" id="qLaw"><b>Avukat ekle</b></button>
+</div>
+<p class="hint">Geçmiş görev ekle: daha önce verilmiş ama sisteme girilmemiş bir görevi tarihiyle kaydeder; sıra buna göre yeniden hesaplanır.</p>
+<button class="b danger" id="bLogout" style="margin-top:12px">Çıkış yap</button>
+</div>
+<details id="setup" style="margin-top:16px"><summary id="setupS">İlk kurulum: komisyon şifresini belirle</summary>
+<p class="hint" style="margin:6px 0 12px">Bir kez yapılır. GitHub erişim anahtarı bu şifreyle şifrelenip depoya kaydedilir; komisyon üyeleri anahtarı görmeden yalnızca şifreyle giriş yapar. En az 10 karakterli, tahmin edilmesi zor bir şifre seçin.</p>
+<div class="f" id="sTokW"><label for="sTok">GitHub erişim anahtarı</label><input id="sTok" type="password" autocomplete="off" placeholder="github_pat_…"></div>
+<div class="two"><div class="f"><label for="sP1">Yeni komisyon şifresi</label><input id="sP1" type="password" autocomplete="new-password"></div><div class="f"><label for="sP2">Şifre tekrar</label><input id="sP2" type="password" autocomplete="new-password"></div></div>
+<button class="b" id="bSetup">Şifreyi kaydet</button>
+</details>
 </div>
 <div class="card">
 <h2>Veri</h2>
@@ -278,6 +319,20 @@ dialog::backdrop{background:rgba(8,15,28,.55)}
 <p class="hint" id="gMeta"></p>
 </div>
 <div class="df"><button type="submit" class="b pri" id="gSave">Kaydet</button><a class="b wa" id="gWa" target="_blank" rel="noopener" hidden>WhatsApp ile bildir</a><button type="button" class="b" data-close>Vazgeç</button><button type="button" class="b danger" id="gDel" hidden>Sil</button></div>
+</form></dialog>
+
+<!-- DIALOG: dosya -->
+<dialog id="dD"><form id="fD" method="dialog">
+<div class="dh"><h2 id="dT">Bekleyen dosya</h2><button type="button" class="x" data-close aria-label="Kapat">✕</button></div>
+<div class="db">
+<div class="two"><div class="f"><label for="dL">Liste</label><select id="dL"><option value="mc">Merkez-Çayeli</option><option value="pz">Pazar</option></select></div><div class="f"><label for="dGel">Geliş tarihi</label><input type="date" id="dGel" required></div></div>
+<div class="two"><div class="f"><label for="dF">Dosya / soruşturma no</label><input id="dF" placeholder="2026/1234"></div><div class="f"><label for="dTur">Görev türü</label><select id="dTur"></select></div></div>
+<div class="f"><label for="dB">Birim</label><input id="dB" list="dlB" placeholder="Rize 1. Asliye Hukuk"></div>
+<div class="two"><div class="f"><label for="dTal">Talep eden</label><input id="dTal"></div><div class="f"><label for="dTel">Talep edenin telefonu</label><input id="dTel" type="tel" inputmode="tel"></div></div>
+<div class="f"><label for="dN">Not</label><textarea id="dN" placeholder="Örn. duruşma tarihi, aciliyet"></textarea></div>
+<div class="f"><label><input type="checkbox" id="dAcil" style="width:auto;min-height:0;margin-right:6px">Acil</label></div>
+</div>
+<div class="df"><button type="submit" class="b pri" id="dSave">Kaydet</button><button type="button" class="b" data-close>Vazgeç</button><button type="button" class="b danger" id="dDel" hidden>Sil</button></div>
 </form></dialog>
 
 <!-- DIALOG: avukat -->
@@ -339,13 +394,13 @@ const sPill=s=>`<span class="pill ${s==="Kabul etti"?"ok":s==="İade etti"?"bad"
 function norm(d){
   d.people=(d.people||[]).map(p=>{let y=p.y;if(Array.isArray(y)){const o={};y.forEach((v,i)=>{if(v!=null)o[2022+i]=v});y=o}return Object.assign({tel:"",o:""},p,{y:y||{}})});
   d.log=(d.log||[]).map(r=>{const x=Object.assign({},r);x.durum=x.durum==="İade edildi"?"İade etti":x.durum==="Verildi"||!x.durum?"Bekliyor":x.durum;return x});
-  d.skip=d.skip||{mc:[],pz:[]};d.gecmis=d.gecmis||[];return d;
+  d.skip=d.skip||{mc:[],pz:[]};d.gecmis=d.gecmis||[];d.dosyalar=d.dosyalar||[];return d;
 }
 let S=norm(JSON.parse($("seed").textContent)),online=false;
 try{const c=JSON.parse(LS.get("aya-cache")||"null");if(c&&c.data&&c.data.guncellendi>=S.guncellendi)S=norm(c.data)}catch(e){}
 let view=LS.get("aya-v")||"sira",g=LS.get("aya-g")||"mc",kf=LS.get("aya-kf")||"";
 let tok=LS.get("aya-tok"),who=LS.get("aya-who")||"",busy=false;
-let eR=null,eP=null,gMode="next",gStat="Bekliyor",transferFrom=null;
+let eR=null,eP=null,gMode="next",gStat="Bekliyor",transferFrom=null,gDos=null,eD=null,AUTH=null;
 const adm=()=>!!tok;
 const P=id=>S.people.find(p=>p.id===id);
 const yr=r=>+String(r.tarih||"").slice(0,4)||DON();
@@ -376,7 +431,9 @@ const api=(p,o={})=>fetch("https://api.github.com/repos/"+REPO+p,Object.assign({
 async function pull(){
   try{let d;
     if(tok){const r=await api("/contents/"+FILE+"?ref="+BRANCH);if(r.status===401){logout(true);throw 0}if(!r.ok)throw 0;d=JSON.parse(b64d((await r.json()).content))}
-    else{let r=await fetch("https://raw.githubusercontent.com/"+REPO+"/"+BRANCH+"/"+FILE+"?t="+Date.now(),{cache:"no-store"}).catch(()=>null);if(!r||!r.ok)r=await fetch(FILE+"?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;d=await r.json()}
+    else{let r=await api("/contents/"+FILE+"?ref="+BRANCH).catch(()=>null);
+      if(r&&r.ok){d=JSON.parse(b64d((await r.json()).content))}
+      else{r=await fetch("https://raw.githubusercontent.com/"+REPO+"/"+BRANCH+"/"+FILE+"?t="+Date.now(),{cache:"no-store"}).catch(()=>null);if(!r||!r.ok)r=await fetch(FILE+"?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;d=await r.json()}}
     if(d&&Array.isArray(d.people)){online=true;if((d.guncellendi||"")>=(S.guncellendi||"")){S=norm(d);LS.set("aya-cache",JSON.stringify({data:d}))}}
   }catch(e){online=false}
   render();
@@ -406,7 +463,8 @@ function render(){
   const t=S.guncellendi?new Date(S.guncellendi):null;
   $("tSync").className="tag"+(online?"":" off");$("tSync").lastChild.textContent=(online?"Güncel":"Çevrimdışı")+(t?" · "+t.toLocaleString("tr-TR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}):"");
   $("tAdm").hidden=!adm();$("tAdm").textContent="Yönetici · "+(who||"");
-  ({sira:rSira,avk:rAvk,kyt:rKyt,rpr:rRpr,ayr:rAyr})[view]();
+  const nd=S.dosyalar.length;$("nbD").hidden=!nd;$("nbD").textContent=nd;
+  ({sira:rSira,dsy:rDsy,avk:rAvk,kyt:rKyt,rpr:rRpr,ayr:rAyr})[view]();
 }
 function rSira(){
   const q=ranked(g),nx=q[0],d=DON(),l=list(g);
@@ -417,10 +475,21 @@ function rSira(){
   $("queue").innerHTML=q.slice(1,7).map((p,i)=>`<li><span class="i">${i+2}</span><span class="n">${esc(T(p.n))}</span><span class="k">${esc(p.ks)} · ${p.cur}</span></li>`).join("")||'<li class="empty">—</li>';
   const act=l.filter(p=>p.d==="Aktif"),rec=S.log.filter(r=>r.g===g&&yr(r)===d);
   $("kpis").innerHTML=[[act.length,"aktif avukat"],[act.filter(p=>!p.cur).length,`${d}'de görev almadı`],[act.reduce((a,p)=>a+p.cur,0),`${d} toplam görev`],[rec.filter(r=>r.durum==="Bekliyor").length,"yanıt bekliyor"]].map(([v,l])=>`<div class="kpi"><b>${v}</b><span>${l}</span></div>`).join("");
+  const dn=S.dosyalar.filter(x=>x.g===g).length;$("dosAlert").hidden=!dn;$("dosAlert").innerHTML=`<span>${dn} dosya avukat ataması bekliyor</span><span>Dosyalara git →</span>`;
   const pd=S.log.filter(r=>r.g===g&&r.durum==="Bekliyor").sort(srt);
   $("pend").innerHTML=pd.map(r=>`<li><span><span class="n">${esc(T(P(r.pid)?.n))}</span><span class="sub2">${fd(r.tarih)}${r.f?" · "+esc(r.f):""}${r.birim?" · "+esc(r.birim):""}</span></span><span class="ac">${adm()?`<button class="b sm" data-acc="${r.rid}">Kabul</button><button class="b sm danger" data-ret="${r.rid}">İade</button>`:sPill(r.durum)}</span></li>`).join("")||'<li class="empty" style="display:block">Yanıt bekleyen görev yok.</li>';
 }
 const srt=(a,b)=>(b.tarih||"").localeCompare(a.tarih||"")||(b.ts||0)-(a.ts||0);
+function rDsy(){
+  $("bAddDos").hidden=!adm();
+  const q=U($("qD").value),fl=$("fDL").value,now=new Date(today());
+  const rows=S.dosyalar.filter(x=>(!fl||x.g===fl)&&(!q||U([x.f,x.birim,x.talep,x.not].join(" ")).includes(q))).sort((a,b)=>(b.acil?1:0)-(a.acil?1:0)||(a.gelis||"").localeCompare(b.gelis||""));
+  const nxt={mc:ranked("mc")[0],pz:ranked("pz")[0]};
+  $("dosL").innerHTML=rows.map(x=>{const gun=Math.max(0,Math.round((now-new Date(x.gelis||today()))/864e5));const nx=nxt[x.g];
+    return `<article class="dc"><div class="top"><div><div class="no">${esc(x.f)||"Dosya no girilmedi"}</div><span class="sub2">${LN[x.g]}${x.birim?" · "+esc(x.birim):""}</span></div>${x.acil?'<span class="pill bad">Acil</span>':`<span class="pill ${gun>3?"wait":""}">${gun?gun+" gündür bekliyor":"Bugün geldi"}</span>`}</div>
+    <dl><dt>Geliş</dt><dd>${fd(x.gelis)}</dd>${x.tur?`<dt>Tür</dt><dd>${esc(x.tur)}</dd>`:""}${x.talep?`<dt>Talep eden</dt><dd>${esc(x.talep)}${x.tel?" · "+esc(x.tel):""}</dd>`:""}${x.not?`<dt>Not</dt><dd>${esc(x.not)}</dd>`:""}</dl>
+    ${adm()?`<div class="ac"><button class="b sm pri" data-dnext="${x.id}"${nx?"":" disabled"}>Sıradakine ata${nx?" · "+esc(T(nx.n)):""}</button><button class="b sm" data-dman="${x.id}">Elle ata</button><button class="b sm" data-ded="${x.id}">Düzenle</button></div>`:""}</article>`}).join("")||'<div class="card empty" style="grid-column:1/-1">Atama bekleyen dosya yok.</div>';
+}
 function rAvk(){
   const d=DON(),q=U($("qA").value),f=$("fA").value,l=list(g);
   const rk={};l.filter(p=>p.d==="Aktif"&&p.k!=null).forEach((p,i)=>rk[p.id]=i+1);
@@ -460,6 +529,7 @@ function rRpr(){
 }
 function rAyr(){
   $("lgOut").hidden=adm();$("lgIn").hidden=!adm();$("lgWho").innerHTML=`<b>${esc(who)}</b> olarak giriş yapıldı. Görev verme ve düzenleme açık.`;
+  $("noAuth").hidden=!!AUTH;$("setupS").textContent=AUTH?"Komisyon şifresini değiştir":"İlk kurulum: komisyon şifresini belirle";$("sTokW").hidden=adm();if(!AUTH&&!adm())$("setup").open=true;
   const y=new Date().getFullYear();$("sD").innerHTML=`<option value="">Otomatik (takvim yılı: ${y})</option>`+[y-1,y,y+1].map(v=>`<option value="${v}"${S.donemSabit===v?" selected":""}>${v}</option>`).join("");$("sD").disabled=!adm();
   $("lRes").hidden=!adm();
   const c=S.people.filter(p=>p.s==null||/kontrol|girilmeli/i.test(p.o||""));const nt=S.people.filter(p=>p.d==="Aktif"&&!p.tel).length;
@@ -470,29 +540,30 @@ function rAyr(){
 /* ---------- nav & filters ---------- */
 const go=v=>{view=v;LS.set("aya-v",v);render();scrollTo(0,0)};
 $("tabs").addEventListener("click",e=>{const b=e.target.closest("button");if(b)go(b.dataset.v)});
+$("dosAlert").addEventListener("click",()=>{$("fDL").value=g;go("dsy")});
 document.addEventListener("click",e=>{const b=e.target.closest("[data-seg] button");if(b){g=b.dataset.g;LS.set("aya-g",g);render()}
   const c=e.target.closest("[data-close]");if(c)c.closest("dialog").close()});
 $("cK").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;kf=b.dataset.kf;LS.set("aya-kf",kf);render()});
 $("fA").innerHTML='<option value="">Tüm durumlar</option>'+STAT.map(s=>`<option>${s}</option>`).join("");
 $("fKT").innerHTML='<option value="">Tüm türler</option>'+TUR.map(s=>`<option>${s}</option>`).join("");
-$("gTur").innerHTML=TUR.map(s=>`<option>${s}</option>`).join("");
+$("gTur").innerHTML=$("dTur").innerHTML=TUR.map(s=>`<option>${s}</option>`).join("");
 $("pD").innerHTML=STAT.map(s=>`<option>${s}</option>`).join("");
-["qA","fA","qK","fKL","fKT","rM","rL"].forEach(id=>$(id).addEventListener("input",render));
+["qD","fDL","qA","fA","qK","fKL","fKT","rM","rL"].forEach(id=>$(id).addEventListener("input",render));
 $("bPrint").addEventListener("click",()=>window.print());
 
 /* ---------- görev dialog ---------- */
 const optsP=(sel,gg)=>S.people.filter(p=>!gg||p.g===gg).slice().sort((a,b)=>a.n.localeCompare(b.n,"tr")).map(p=>`<option value="${p.id}"${p.id===sel?" selected":""}>${esc(T(p.n))} · ${LN[p.g]}${p.d!=="Aktif"?" ("+p.d+")":""}</option>`).join("");
 function setStat(s){gStat=s;$("gS").innerHTML=GS.map(x=>`<button type="button" data-s="${x}" aria-pressed="${x===s}">${x}</button>`).join("")}
 $("gS").addEventListener("click",e=>{const b=e.target.closest("button");if(b&&adm())setStat(b.dataset.s)});
-function openG({rec=null,pid=null,mode="next",prefill=null}={}){
-  eR=rec;gMode=mode;transferFrom=prefill&&prefill.from||null;const ro=!adm(),src=rec||prefill||{};
-  $("gT").textContent=rec?(ro?"Görev ayrıntısı":"Görevi düzenle"):mode==="manual"?"Elle görev ata":mode==="transfer"?"Görevi sıradakine aktar":"Görev ver";
+function openG({rec=null,pid=null,mode="next",prefill=null,dosya=null}={}){
+  eR=rec;gMode=mode;gDos=dosya?dosya.id:null;if(dosya)prefill=Object.assign({},prefill||{},{f:dosya.f,birim:dosya.birim,tur:dosya.tur,talep:dosya.talep,neden:""});transferFrom=prefill&&prefill.from||null;const ro=!adm(),src=rec||prefill||{};
+  $("gT").textContent=rec?(ro?"Görev ayrıntısı":"Görevi düzenle"):mode==="manual"?"Elle görev ata":mode==="past"?"Geçmiş görev ekle":mode==="transfer"?"Görevi sıradakine aktar":"Görev ver";
   $("gP").innerHTML=optsP(rec?rec.pid:pid,rec?null:mode==="next"||mode==="transfer"?null:null);
   $("gWhyW").hidden=!(mode==="manual"||(rec&&rec.elle));$("gWhy").value=src.neden||"";
-  $("gNote").hidden=!(mode==="next"||mode==="transfer");
-  $("gNote").textContent=mode==="transfer"?"İade edilen görev, sıradaki avukata aynı dosya bilgileriyle verilecek.":"Sıraya göre seçildi. Başka bir avukat seçerseniz kayıt \"elle atandı\" olarak işaretlenir.";
+  $("gNote").hidden=!(mode==="next"||mode==="transfer"||mode==="past"||dosya);
+  $("gNote").textContent=mode==="past"?"Daha önce verilmiş bir görevi kaydeder. Tarihi doğru girin; sıra bu kayda göre yeniden hesaplanır.":mode==="transfer"?"İade edilen görev, sıradaki avukata aynı dosya bilgileriyle verilecek.":(dosya?"Bekleyen dosyadan atanıyor; kaydedince dosya listeden düşer. ":"")+(mode==="next"?"Sıraya göre seçildi. Başka bir avukat seçerseniz kayıt \"elle atandı\" olarak işaretlenir.":"");
   $("gD").value=src.tarih&&rec?src.tarih:today();$("gTur").value=src.tur||"Hukuk";$("gF").value=src.f||"";$("gB").value=src.birim||"";$("gTalep").value=src.talep||"";$("gN").value=rec?rec.not||"":"";
-  setStat(rec?rec.durum:"Bekliyor");
+  setStat(rec?rec.durum:mode==="past"?"Kabul etti":"Bekliyor");
   $("dlB").innerHTML=[...new Set(S.log.map(x=>x.birim).filter(Boolean))].map(b=>`<option value="${esc(b)}">`).join("");
   $("gMeta").textContent=rec&&rec.eski?"Eski kâğıt listeden aktarılan kayıt; kesin tarihi bilinmiyor.":rec?`Kaydeden: ${rec.by||"—"}${rec.duzenleyen?" · Son düzenleyen: "+rec.duzenleyen:""}`:"";
   $$("#fG input,#fG select,#fG textarea").forEach(e=>e.disabled=ro);
@@ -506,14 +577,16 @@ $("bManual").addEventListener("click",()=>openG({mode:"manual"}));
 $("bAddRec").addEventListener("click",()=>openG({mode:"manual"}));
 $("fG").addEventListener("submit",async e=>{
   e.preventDefault();const p=P($("gP").value);if(!p)return;
-  const nx=gMode==="next"?ranked(g)[0]:gMode==="transfer"?ranked(p.g,transferFrom)[0]:null;
-  const elle=eR?!!eR.elle:(gMode==="manual"||(nx&&nx.id!==p.id));
+  const nx=gMode==="next"?ranked(gDos?p.g:g)[0]:gMode==="transfer"?ranked(p.g,transferFrom)[0]:null;
+  const elle=eR?!!eR.elle:!!(gMode==="manual"||(nx&&nx.id!==p.id));
   if(elle&&!eR&&!$("gWhy").value.trim()){$("gWhyW").hidden=false;$("gWhy").focus();toast("Sıra dışı atama için neden girin");return}
   const d={pid:p.id,g:p.g,tarih:$("gD").value||today(),tur:$("gTur").value,f:$("gF").value.trim(),birim:$("gB").value.trim(),talep:$("gTalep").value.trim(),durum:gStat,not:$("gN").value.trim(),elle,neden:elle?$("gWhy").value.trim():""};
   $("dG").close();
   if(eR){const rid=eR.rid;if(await commit("Görev düzenlendi: "+T(p.n),s=>{const r=s.log.find(x=>x.rid===rid);if(r)Object.assign(r,d,{duzenleyen:who})}))toast("Görev güncellendi");return}
-  const rec=Object.assign({rid:"r"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),ts:Date.now(),by:who},d,transferFrom?{aktarim:transferFrom}:{});
-  const ok=await commit((elle?"Elle görev atandı: ":"Görev verildi: ")+T(p.n)+(rec.f?" ("+rec.f+")":""),s=>{if(!s.log.some(x=>x.rid===rec.rid))s.log.push(rec);s.skip[p.g]=(s.skip[p.g]||[]).filter(x=>(x.id||x)!==p.id)});
+  const dosId=gDos,past=gMode==="past";
+  const rec=Object.assign({rid:"r"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),ts:Date.now(),by:who},d,transferFrom?{aktarim:transferFrom}:{},past?{sonradan:true}:{},dosId?{dosya:dosId}:{});
+  const ok=await commit((past?"Geçmiş görev eklendi: ":elle?"Elle görev atandı: ":"Görev verildi: ")+T(p.n)+(rec.f?" ("+rec.f+")":""),s=>{if(!s.log.some(x=>x.rid===rec.rid))s.log.push(rec);if(!past)s.skip[p.g]=(s.skip[p.g]||[]).filter(x=>(x.id||x)!==p.id);if(dosId)s.dosyalar=(s.dosyalar||[]).filter(x=>x.id!==dosId)});
+  if(ok&&past){toast("Geçmiş görev eklendi");return}
   if(ok)showDone(p.id,rec);
 });
 function showDone(pid,rec){
@@ -539,6 +612,67 @@ $("pend").addEventListener("click",async e=>{
 $("bSkip").addEventListener("click",()=>{const nx=ranked(g)[0];if(!nx)return;$("kW").textContent=T(nx.n)+" bu turda atlanacak ve sıranın sonuna geçecek. Bir görev aldığında atlama kendiliğinden kalkar.";$("fK").dataset.id=nx.id;$("dK").showModal()});
 $("fK").addEventListener("submit",async e=>{e.preventDefault();const id=$("fK").dataset.id,p=P(id),why=$("kR").value;$("dK").close();
   if(await commit("Sırada atlandı ("+why+"): "+T(p.n),s=>{s.skip[p.g]=(s.skip[p.g]||[]).filter(x=>(x.id||x)!==id).concat({id,neden:why,tarih:today()})}))toast(T(p.n)+" atlandı")});
+
+/* ---------- bekleyen dosyalar ---------- */
+function openD(x){
+  eD=x;const n=!x;$("dT").textContent=n?"Bekleyen dosya ekle":"Dosyayı düzenle";
+  $("dL").value=x?x.g:g;$("dGel").value=x?x.gelis:today();$("dF").value=x?x.f||"":"";$("dTur").value=x?x.tur||"Hukuk":"Hukuk";$("dB").value=x?x.birim||"":"";$("dTal").value=x?x.talep||"":"";$("dTel").value=x?x.tel||"":"";$("dN").value=x?x.not||"":"";$("dAcil").checked=!!(x&&x.acil);
+  $("dlB").innerHTML=[...new Set(S.log.map(r=>r.birim).concat(S.dosyalar.map(r=>r.birim)).filter(Boolean))].map(b=>`<option value="${esc(b)}">`).join("");
+  $("dDel").hidden=n;$("dDel").dataset.arm="";$("dDel").textContent="Sil";$("dD").showModal();
+}
+$("bAddDos").addEventListener("click",()=>openD(null));
+$("fD").addEventListener("submit",async e=>{e.preventDefault();
+  const v={g:$("dL").value,gelis:$("dGel").value||today(),f:$("dF").value.trim(),tur:$("dTur").value,birim:$("dB").value.trim(),talep:$("dTal").value.trim(),tel:$("dTel").value.trim(),not:$("dN").value.trim(),acil:$("dAcil").checked};
+  if(!v.f&&!v.talep&&!v.birim){toast("Dosya no, birim veya talep edenden en az birini girin");return}
+  $("dD").close();
+  if(eD){const id=eD.id;if(await commit("Bekleyen dosya düzenlendi: "+(v.f||v.talep),s=>{const x=s.dosyalar.find(y=>y.id===id);if(x)Object.assign(x,v)}))toast("Dosya güncellendi")}
+  else{const x=Object.assign({id:"d"+Date.now().toString(36),ekleyen:who,eklendi:nowISO()},v);if(await commit("Bekleyen dosya eklendi: "+(v.f||v.talep||v.birim),s=>{if(!s.dosyalar.some(y=>y.id===x.id))s.dosyalar.push(x)}))toast("Dosya eklendi")}
+});
+$("dDel").addEventListener("click",async e=>{if(!e.target.dataset.arm){e.target.dataset.arm="1";e.target.textContent="Silmek için tekrar basın";return}
+  const id=eD.id,n=eD.f||eD.talep||"";$("dD").close();if(await commit("Bekleyen dosya silindi: "+n,s=>{s.dosyalar=s.dosyalar.filter(y=>y.id!==id)}))toast("Dosya silindi")});
+$("dosL").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
+  const id=b.dataset.dnext||b.dataset.dman||b.dataset.ded,x=S.dosyalar.find(y=>y.id===id);if(!x)return;
+  if(b.dataset.ded)openD(x);
+  else if(b.dataset.dnext){const nx=ranked(x.g)[0];if(nx)openG({pid:nx.id,mode:"next",dosya:x})}
+  else openG({mode:"manual",dosya:x});
+});
+$("qManual").addEventListener("click",()=>openG({mode:"manual"}));
+$("qPast").addEventListener("click",()=>openG({mode:"past"}));
+$("qDos").addEventListener("click",()=>openD(null));
+$("qLaw").addEventListener("click",()=>openP(null));
+
+/* ---------- komisyon şifresi ---------- */
+const u8b64=u=>{let s="";u.forEach(b=>s+=String.fromCharCode(b));return btoa(s)},b64u8=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+async function kdf(pw,salt,it){const k=await crypto.subtle.importKey("raw",new TextEncoder().encode(pw),"PBKDF2",false,["deriveKey"]);return crypto.subtle.deriveKey({name:"PBKDF2",salt,iterations:it,hash:"SHA-256"},k,{name:"AES-GCM",length:256},false,["encrypt","decrypt"])}
+async function loadAuth(){
+  try{let r=await api("/contents/auth.json?ref="+BRANCH);let a=null;
+    if(r.ok)a=JSON.parse(b64d((await r.json()).content));
+    else if(r.status!==404){const x=await fetch("https://raw.githubusercontent.com/"+REPO+"/"+BRANCH+"/auth.json?t="+Date.now(),{cache:"no-store"});if(x.ok)a=await x.json()}
+    AUTH=a&&a.ct?a:null;
+  }catch(e){}
+  render();
+}
+async function canPush(t){try{const r=await fetch("https://api.github.com/repos/"+REPO,{headers:{Authorization:"Bearer "+t,Accept:"application/vnd.github+json"}});const j=r.ok?await r.json():null;return !!(j&&j.permissions&&j.permissions.push)}catch(e){return false}}
+$("bSetup").addEventListener("click",async()=>{
+  const t=adm()?tok:$("sTok").value.trim(),p1=$("sP1").value,p2=$("sP2").value;
+  if(!t){toast("GitHub erişim anahtarını girin");return}
+  if(p1.length<10){toast("Şifre en az 10 karakter olmalı");return}
+  if(p1!==p2){toast("Şifreler aynı değil");return}
+  $("bSetup").disabled=true;
+  try{
+    if(!(await canPush(t))){toast("Bu anahtar depoya yazma yetkisi vermiyor");return}
+    const salt=crypto.getRandomValues(new Uint8Array(16)),iv=crypto.getRandomValues(new Uint8Array(12)),it=310000;
+    const key=await kdf(p1,salt,it),ct=new Uint8Array(await crypto.subtle.encrypt({name:"AES-GCM",iv},key,new TextEncoder().encode(t)));
+    const a={v:1,it,salt:u8b64(salt),iv:u8b64(iv),ct:u8b64(ct),guncellendi:nowISO()};
+    const h={Authorization:"Bearer "+t,Accept:"application/vnd.github+json"};
+    const g0=await fetch("https://api.github.com/repos/"+REPO+"/contents/auth.json?ref="+BRANCH,{headers:h,cache:"no-store"});const sha=g0.ok?(await g0.json()).sha:undefined;
+    const p=await fetch("https://api.github.com/repos/"+REPO+"/contents/auth.json",{method:"PUT",headers:h,body:JSON.stringify({message:"Komisyon şifresi "+(sha?"değiştirildi":"belirlendi"),content:b64e(JSON.stringify(a,null,1)),branch:BRANCH,sha})});
+    if(!p.ok){toast("Kaydedilemedi ("+p.status+")");return}
+    AUTH=a;$("sTok").value=$("sP1").value=$("sP2").value="";$("setup").open=false;
+    if(!adm()){tok=t;who=$("aN").value.trim()||"Yönetici";LS.set("aya-tok",t);LS.set("aya-who",who)}
+    toast("Komisyon şifresi kaydedildi");await pull();
+  }finally{$("bSetup").disabled=false}
+});
 
 /* ---------- avukat dialog ---------- */
 function openP(id){
@@ -572,14 +706,16 @@ $("fP").addEventListener("submit",async e=>{
 
 /* ---------- yönetim ---------- */
 $("bLogin").addEventListener("click",async()=>{
-  const t=$("aT").value.trim(),n=$("aN").value.trim();if(!t||!n){toast("Ad ve anahtar gerekli");return}
+  const pw=$("aP").value,n=$("aN").value.trim();if(!n||!pw){toast("Adınızı ve komisyon şifresini girin");return}
+  if(!AUTH){await loadAuth();if(!AUTH){toast("Komisyon şifresi henüz belirlenmedi");return}}
   $("bLogin").disabled=true;
-  try{const r=await fetch("https://api.github.com/repos/"+REPO,{headers:{Authorization:"Bearer "+t,Accept:"application/vnd.github+json"}});const j=r.ok?await r.json():null;
-    if(!j||!j.permissions||!j.permissions.push)toast("Bu anahtar depoya yazma yetkisi vermiyor");
-    else{tok=t;who=n;LS.set("aya-tok",t);LS.set("aya-who",n);$("aT").value="";toast("Giriş yapıldı");await pull()}
-  }catch(e){toast("Bağlantı kurulamadı")}
-  $("bLogin").disabled=false;
+  try{let t;
+    try{const key=await kdf(pw,b64u8(AUTH.salt),AUTH.it||310000);t=new TextDecoder().decode(await crypto.subtle.decrypt({name:"AES-GCM",iv:b64u8(AUTH.iv)},key,b64u8(AUTH.ct)))}catch(e){toast("Şifre hatalı");return}
+    if(!(await canPush(t))){toast("Kayıtlı anahtar artık geçerli değil; şifre yeniden kurulmalı");return}
+    tok=t;who=n;LS.set("aya-tok",t);LS.set("aya-who",n);$("aP").value="";toast("Giriş yapıldı");await pull();
+  }finally{$("bLogin").disabled=false}
 });
+$("aP").addEventListener("keydown",e=>{if(e.key==="Enter")$("bLogin").click()});
 function logout(silent){tok=null;LS.set("aya-tok",null);if(!silent)toast("Çıkış yapıldı");render()}
 $("bLogout").addEventListener("click",()=>logout());
 $("sD").addEventListener("change",async e=>{const v=e.target.value;await commit("Dönem ayarı: "+(v||"otomatik"),s=>{if(v)s.donemSabit=+v;else delete s.donemSabit;s.skip={mc:[],pz:[]}})});
@@ -601,9 +737,9 @@ $("resMsg").addEventListener("click",async e=>{if(e.target.id!=="bDo"||!pend)ret
   if(await commit("Yedekten geri yüklendi",s=>{s.people=b.people;s.log=b.log;s.skip=b.skip}))toast("Yedek yüklendi")});
 
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&!busy)pull()});
-setInterval(()=>{if(!document.hidden&&!busy&&!document.querySelector("dialog[open]"))pull()},tok?60000:180000);
+setInterval(()=>{if(!document.hidden&&!busy&&!document.querySelector("dialog[open]"))pull()},tok?45000:90000);
 if("serviceWorker"in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(()=>{});
-render();pull();
+render();pull();loadAuth();
 }
 </script>
 </body>
